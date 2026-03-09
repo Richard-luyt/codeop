@@ -35,10 +35,10 @@ function FileNodeItem({
         style={{
           cursor: "pointer",
           padding: "2px 0",
-          color: isFolder ? "#ff79c6" : "#f8f8f2",
+          color: isFolder ? "#ffced7" : "#f8f8f2",
         }}
       >
-        {isFolder ? (isOpen ? "📂 " : "📁 ") : "📄 "}
+        {isFolder ? (isOpen ? "📂 " : "📁 ") : "</> "}
         {node.name}
       </div>
       {isFolder && isOpen && node.children && (
