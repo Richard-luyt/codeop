@@ -1,0 +1,346 @@
+.root {
+  width: 100%;
+  min-height: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.rootList {
+  width: 100%;
+}
+
+.statusBar {
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.statusBarSuccess {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.statusBarError {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.statusBarInfo {
+  background: rgba(59, 130, 246, 0.1);
+  color: #3b82f6;
+}
+
+.headerRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.headerTitle {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.headerCount {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #737373;
+}
+
+.filterRow {
+  display: flex;
+  gap: 8px;
+}
+
+.select {
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid #333;
+  background: #1a1a1a;
+  color: #e5e5e5;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.repoList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.repoCard {
+  padding: 20px;
+  background: #171717;
+  border-radius: 10px;
+  border: 1px solid #262626;
+  cursor: pointer;
+}
+
+.repoCardSelected {
+  background: #1f1f1f;
+  border: 1px solid #404040;
+}
+
+.repoCardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.repoName {
+  font-weight: 600;
+  color: #fff;
+  font-size: 16px;
+}
+
+.badge {
+  flex-shrink: 0;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.badgePublic {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.badgePrivate {
+  background: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+}
+
+.repoDescription {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: #a3a3a3;
+  line-height: 1.4;
+}
+
+.repoMeta {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  font-size: 13px;
+  color: #737373;
+  margin-bottom: 16px;
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.metaItemSmall {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.langDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.actionRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.btnOpenCode {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #ffced7;
+  color: #000;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.btnOpenCodeLoading {
+  background: #374151;
+  cursor: not-allowed;
+}
+
+.btnOpenCodeDisabled {
+  opacity: 0.5;
+}
+
+.btnSecondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #262626;
+  color: #e5e5e5;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btnIconOnly {
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: none;
+  background: #262626;
+  color: #e5e5e5;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background: #1e1e1e;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  max-width: 420px;
+  width: 90%;
+  border: 1px solid #333;
+}
+
+.modalTitle {
+  margin: 0 0 12px;
+  color: #e0e0e0;
+}
+
+.modalSubtitle {
+  margin: 0 0 8px;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.modalCode {
+  display: block;
+  padding: 8px 12px;
+  margin-bottom: 16px;
+  background: #2d2d2d;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #9cdcfe;
+  overflow: auto;
+}
+
+.modalInput {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #2d2d2d;
+  color: #e0e0e0;
+  font-size: 14px;
+  outline: none;
+}
+
+.modalTextarea {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  margin-bottom: 16px;
+  border: 1px solid #444;
+  border-radius: 8px;
+  background: #2d2d2d;
+  color: #e0e0e0;
+  font-size: 14px;
+  min-height: 80px;
+  resize: vertical;
+  outline: none;
+}
+
+.modalActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btnCancel {
+  padding: 8px 16px;
+  border: 1px solid #555;
+  border-radius: 6px;
+  background: #333;
+  color: #e0e0e0;
+  cursor: pointer;
+}
+
+.btnSend {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  background: #0d6efd;
+  color: #fff;
+  cursor: pointer;
+}
+
+.codeViewRow {
+  display: flex;
+  height: calc(100vh - 120px);
+  width: 100%;
+  position: relative;
+  gap: 16px;
+}
+
+.backLink {
+  position: absolute;
+  top: 18px;
+  left: 12px;
+  z-index: 10;
+  color: #a3a3a3;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.backLink:hover {
+  text-decoration: underline;
+}
+
+.fileTreeWrap {
+  width: 280px;
+  min-width: 240px;
+  flex-shrink: 0;
+  padding-top: 48px;
+  background: #252526;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.editorWrap {
+  flex: 1;
+  min-width: 0;
+  padding: 20px;
+  overflow: auto;
+  background: #1a1a1a;
+  border-radius: 8px;
+}

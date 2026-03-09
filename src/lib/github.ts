@@ -32,7 +32,12 @@ export async function getUserRepo(): Promise<ActionResponse<any>> {
       fullName: repo.full_name,
       name: repo.name,
       owner: repo.owner.login,
-      description: repo.description,
+      description: repo.description ?? null,
+      private: repo.private ?? null,
+      language: repo.language ?? null,
+      stargazers_count: repo.stargazers_count ?? null,
+      forks_count: repo.forks_count ?? null,
+      updated_at: repo.updated_at ?? null,
     }));
 
     return { success: true, data: data };
@@ -46,7 +51,6 @@ export async function getUserRepo(): Promise<ActionResponse<any>> {
       const result = await db
         .delete(sessions)
         .where(eq(sessions.userId, session?.user?.id!));
-      const result2 = await db.delete(accounts).where(eq(accounts.userId, session?.user?.id!));
       return { success: false, error: "user didn't signin", status: 401 };
     } else {
       console.log(err);
@@ -101,7 +105,6 @@ export async function syncProjectTree(
       const result = await db
         .delete(sessions)
         .where(eq(sessions.userId, session?.user?.id!));
-      const result2 = await db.delete(accounts).where(eq(accounts.userId, session?.user?.id!));
       return { success: false, error: "user didn't signin", status: 401 };
     } else {
       console.log(err);
@@ -164,7 +167,6 @@ export async function getFileContent(
       const result = await db
         .delete(sessions)
         .where(eq(sessions.userId, session?.user?.id!));
-      const result2 = await db.delete(accounts).where(eq(accounts.userId, session?.user?.id!));
       return { success: false, error: "user didn't signin", status: 401 };
     } else {
       console.log(err);

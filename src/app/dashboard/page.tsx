@@ -1,26 +1,29 @@
+import { auth } from "@/auth";
 import { getUserRepo } from "@/lib/github";
 import RepoList from "../../components/RepoList";
+import DashboardLayout from "../../components/DashboardLayout";
 import { redirect } from "next/navigation";
 
-export default async function HomePage() {
+export default async function DashboardPage() {
+  const session = await auth();
   const response = await getUserRepo();
-  console.log("Here is HomePage");
   if (!response.success) {
     if (response.status == 401) {
-      console.log("an error occured");
       redirect("/");
     }
     return (
-      <div>There is a problem when retriving the list: {response.error}</div>
+      <div style={{ padding: "40px", color: "#e5e5e5" }}>
+        There is a problem when retrieving the list: {response.error}
+      </div>
     );
   }
 
+  const repos = response.data;
+  const recentRepos = repos.slice(0, 3).map((r: { name: string; fullName: string }) => ({ name: r.name, fullName: r.fullName }));
+
   return (
-    <div style={{ padding: "40px" }}>
-      <h1>Your Github Repository</h1>
-      <p>Click the "Sync" button to update your code</p>
-      <hr />
-      <RepoList initialRepos={response.data} />
-    </div>
+    <DashboardLayout user={session?.user ?? null} recentRepos={recentRepos}>
+      <RepoList initialRepos={repos} />
+    </DashboardLayout>
   );
 }

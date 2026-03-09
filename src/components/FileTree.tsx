@@ -1,6 +1,9 @@
 "use client";
 import { useState } from "react";
 import { type FileNode } from "../lib/utiles";
+import { AiFillFolder } from "react-icons/ai";
+import { getFileIcon } from "./getFileIcon";
+import styles from "./FileTree.module.css";
 
 export default function FileTree({
   nodes,
@@ -9,40 +12,94 @@ export default function FileTree({
   nodes: FileNode[];
   onFileClick: (path: string) => void;
 }) {
+  const [selectedPath, setSelectedPath] = useState<string | null>(null);
+
+  const handleFileClick = (path: string) => {
+    setSelectedPath(path);
+    onFileClick(path);
+  };
+
   return (
-    <ul style={{ listStyle: "none", paddingLeft: "15px", color: "white" }}>
-      {nodes.map((node) => (
-        <FileNodeItem key={node.path} node={node} onFileClick={onFileClick} />
-      ))}
-    </ul>
+    <div className={styles.panel}>
+      <div className={styles.header}>
+        <span className={styles.headerTitle}>EXPLORER</span>
+      </div>
+      <div className={styles.scrollArea}>
+        <ul className={styles.list}>
+          {nodes.map((node) => (
+            <FileNodeItem
+              key={node.path}
+              node={node}
+              depth={0}
+              selectedPath={selectedPath}
+              onFileClick={handleFileClick}
+            />
+          ))}
+        </ul>
+      </div>
+    </div>
   );
 }
 
 function FileNodeItem({
   node,
+  depth,
+  selectedPath,
   onFileClick,
 }: {
   node: FileNode;
+  depth: number;
+  selectedPath: string | null;
   onFileClick: (path: string) => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(depth < 1);
   const isFolder = node.type === "tree";
+  const isSelected = !isFolder && selectedPath === node.path;
+
+  const handleClick = () => {
+    if (isFolder) {
+      setIsOpen(!isOpen);
+    } else {
+      onFileClick(node.path);
+    }
+  };
+
+  const indent = 8 + depth * 12;
 
   return (
     <li>
       <div
-        onClick={() => (isFolder ? setIsOpen(!isOpen) : onFileClick(node.path))}
-        style={{
-          cursor: "pointer",
-          padding: "2px 0",
-          color: isFolder ? "#ffced7" : "#f8f8f2",
-        }}
+        onClick={handleClick}
+        className={`${styles.row} ${isSelected ? styles.rowSelected : ""}`}
+        style={{ paddingLeft: indent }}
       >
-        {isFolder ? (isOpen ? "📂 " : "📁 ") : "</> "}
-        {node.name}
+        {isFolder ? (
+          <>
+            <span className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}>▶</span>
+            <span className={styles.folderIcon}>
+              <AiFillFolder className={styles.folderIconSvg} />
+            </span>
+          </>
+        ) : (
+          <>
+            <span className={styles.spacer} />
+            <span className={styles.fileIconWrap}>{getFileIcon(node.name)}</span>
+          </>
+        )}
+        <span className={styles.label}>{node.name}</span>
       </div>
-      {isFolder && isOpen && node.children && (
-        <FileTree nodes={node.children} onFileClick={onFileClick} />
+      {isFolder && isOpen && node.children && node.children.length > 0 && (
+        <ul className={styles.list}>
+          {node.children.map((child) => (
+            <FileNodeItem
+              key={child.path}
+              node={child}
+              depth={depth + 1}
+              selectedPath={selectedPath}
+              onFileClick={onFileClick}
+            />
+          ))}
+        </ul>
       )}
     </li>
   );
