@@ -10,6 +10,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     accountsTable: accounts,
     sessionsTable: sessions,
   }),
+  session: {
+    strategy: "database",
+  },
+  callbacks: {
+    async session({ session, user }) {
+      if (session.user && user) {
+        session.user.id = user.id;
+      }
+      return session;
+    },
+  },
   providers: [
     GitHub({
       authorization: { params: { scope: "read:user user:email repo" } },

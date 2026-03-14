@@ -17,10 +17,11 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
   const [treeData, setTreeData] = useState<FileNode[] | null>(null);
   const [currentCode, setCurrentCode] = useState("");
   const [codelanguage, setCurrentLang] = useState("typescript");
+  const [currentPath, setPath] = useState("");
   const [selectedRepo, setSelectedRepo] = useState<{
     owner: string;
     name: string;
-    id: number;
+    id: string;
   } | null>(null);
 
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -29,16 +30,20 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
 
   const [toEmail, setToEmail] = useState<string>();
   const [message, setMessage] = useState("");
-  const [selectedRepoIdInList, setSelectedRepoIdInList] = useState<number | null>(null);
+  const [selectedRepoIdInList, setSelectedRepoIdInList] = useState<
+    number | null
+  >(null);
 
   const { data: session } = useSession();
+  //console.log(session);
   const repoRef = useRef(selectedRepo);
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
 
   const handleSync = async (repo: any) => {
     setloadingId(repo.id);
     setStatus(`setting up ${repo.id}`);
     try {
-      const localId = await createProject(repo.name, repo.owner);
+      const localId = await createProject(repo.id, repo.name, repo.owner);
       setStatus(`${repo.id} has been set up, syncing to file tree`);
       const syncRes = await syncProjectTree(localId);
       if (syncRes.success) {
@@ -62,7 +67,11 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
     }
   };
 
-  function handleEditorDidMount(ed: editor.IStandaloneCodeEditor, _monaco: Monaco) {
+  function handleEditorDidMount(
+    ed: editor.IStandaloneCodeEditor,
+    _monaco: Monaco,
+  ) {
+    editorRef.current = ed;
     ed.addAction({
       id: "send-a-message-to-friend",
       label: "Send-A-Message-to-friend on this line",
@@ -76,6 +85,7 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
         setIsModalOpen(true);
       },
     });
+    //ed.addContentWidget;
   }
 
   async function handleSendComment() {
@@ -84,12 +94,16 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
       return;
     }
     if (!repoRef.current) return;
+    console.log("------------------------------");
+    //console.log(session?.user?.id!);
+    console.log(message);
     const result = await sendCommentAction(
       toEmail,
       message,
       repoRef.current.id,
       targetLine!,
       session?.user?.id!,
+      currentPath,
     );
     if (result.success) {
       setIsModalOpen(false);
@@ -111,7 +125,11 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
     else if (cleanlanguage == "cpp") cleanlanguage = "c++";
     setCurrentLang(cleanlanguage ? cleanlanguage : "undefined");
     const cleanPath = path.startsWith("/") ? path.slice(1) : path;
-    const code = await getFileContent(selectedRepo.owner, selectedRepo.name, cleanPath);
+    const code = await getFileContent(
+      selectedRepo.owner,
+      selectedRepo.name,
+      cleanPath,
+    );
     if (code.success == false) {
       if (code.status == 401) {
         setStatus(`❌ Your login credential failed, redirecting...`);
@@ -123,6 +141,7 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
     }
     setCurrentCode(code.data);
     setStatus("File loaded.");
+    setPath(cleanPath);
   };
 
   return (
@@ -138,6 +157,7 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
         />
       ) : (
         <RepoCodeView
+          currentFilePath={currentPath}
           treeData={treeData}
           onBack={() => setTreeData(null)}
           onFileClick={handleFileClick}

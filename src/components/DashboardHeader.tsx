@@ -1,8 +1,47 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
+import { Bell } from "lucide-react";
+import { useEditorStore } from "@/app/store/useEditorStore";
+
 const PINK = "#ffced7";
 
 export default function DashboardHeader() {
+  useEffect(() => {
+    const eventSource = new EventSource("/api/notifications");
+    eventSource.onmessage = (event) => {
+      const newComment = JSON.parse(event.data);
+      toast.message("new comment", {
+        description: `${newComment.name} : "${newComment.content}"`,
+        action: {
+          label: "to specific line",
+          onClick: () => {
+            console.log(`to line, ${newComment.lineNumber}`);
+            useEditorStore
+              .getState()
+              .triggerJump(
+                newComment.projectID,
+                newComment.path,
+                newComment.lineNumber,
+                {
+                  authorName: newComment.name,
+                  content: newComment.content,
+                },
+              );
+          },
+        },
+      });
+    };
+
+    eventSource.onerror = () => {
+      console.log("can not connect");
+      eventSource.close();
+    };
+
+    return () => eventSource.close();
+  }, []);
+
   return (
     <header
       style={{
@@ -14,7 +53,9 @@ export default function DashboardHeader() {
         flexWrap: "wrap",
       }}
     >
-      <h1 style={{ margin: 0, fontSize: "22px", fontWeight: 700, color: "#fff" }}>
+      <h1
+        style={{ margin: 0, fontSize: "22px", fontWeight: 700, color: "#fff" }}
+      >
         Repositories
       </h1>
       <div
@@ -64,17 +105,31 @@ export default function DashboardHeader() {
         >
           + New Repo
         </button>
-        <button
-          type="button"
-          aria-label="Notifications"
-          style={{ background: "#262626", border: "none", color: "#e5e5e5", width: "40px", height: "40px", borderRadius: "8px", cursor: "pointer" }}
+        <Bell
+          style={{
+            background: "#262626",
+            border: "none",
+            color: "#e5e5e5",
+            width: "40px",
+            height: "40px",
+            borderRadius: "8px",
+            cursor: "pointer",
+          }}
         >
           🔔
-        </button>
+        </Bell>
         <button
           type="button"
           aria-label="Menu"
-          style={{ background: "#262626", border: "none", color: "#e5e5e5", width: "40px", height: "40px", borderRadius: "8px", cursor: "pointer" }}
+          style={{
+            background: "#262626",
+            border: "none",
+            color: "#e5e5e5",
+            width: "40px",
+            height: "40px",
+            borderRadius: "8px",
+            cursor: "pointer",
+          }}
         >
           ⋮
         </button>

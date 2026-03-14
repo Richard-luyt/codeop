@@ -6,6 +6,7 @@ import {
   timestamp,
   primaryKey,
   jsonb,
+  boolean,
 } from "drizzle-orm/pg-core";
 import type { AdapterAccountType } from "@auth/core/adapters";
 
@@ -37,9 +38,9 @@ export const commentTable = pgTable("comments", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
 
-  projectID: integer("project_id")
+  projectID: text("project_id")
     .notNull()
-    .references(() => projectTable.id, { onDelete: "cascade" }),
+    .references(() => projectTable.githubRepoId, { onDelete: "cascade" }),
 
   teamID: integer("team_id").notNull().default(0),
   toWhomID: text("towhom_id")
@@ -48,6 +49,7 @@ export const commentTable = pgTable("comments", {
   content: text("content").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   lineNumber: integer("line_num").notNull(),
+  checkedByUser: boolean("checked").notNull().default(false),
 });
 
 export const sessions = pgTable("session", {

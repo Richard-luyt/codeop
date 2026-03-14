@@ -2,11 +2,31 @@
 
 import FileTree from "./FileTree";
 import { Editor, Monaco } from "@monaco-editor/react";
-import { editor } from "monaco-editor";
 import styles from "./RepoList.module.css";
 import { type FileNode } from "../lib/utiles";
+import { editor } from "monaco-editor";
+import { useState } from "react";
+import { createPortal } from "react-dom";
+import { useEffect, useRef } from "react";
+import { useEditorStore } from "@/app/store/useEditorStore";
+
+export function createCommentWidget(widgetId: string, dynamicLine: number) {
+  const containerNode = document.createElement("div");
+  containerNode.id = widgetId;
+  return {
+    getDomNode: () => containerNode,
+    getId: () => widgetId,
+    getPosition: () => {
+      return {
+        position: { lineNumber: dynamicLine, column: 1 },
+        preference: [2 as any],
+      };
+    },
+  };
+}
 
 export default function RepoCodeView({
+  currentFilePath,
   treeData,
   onBack,
   onFileClick,
@@ -22,6 +42,7 @@ export default function RepoCodeView({
   setMessage,
   onSendComment,
 }: {
+  currentFilePath: string;
   treeData: FileNode[];
   onBack: () => void;
   onFileClick: (path: string) => Promise<void>;
@@ -38,6 +59,53 @@ export default function RepoCodeView({
   onSendComment: () => Promise<void>;
 }) {
   const nodes = treeData?.[0]?.children ?? [];
+  const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
+  const jumpCommand = useEditorStore((state) => state.jumpCommand);
+  const [activeWidgets, setActiveWidgets] = useState<
+    Array<{ id: string; node: HTMLElement; line: number; payload?: any }>
+  >([]);
+
+  const handleLocalEditorMount = (
+    ed: editor.IStandaloneCodeEditor,
+    monaco: Monaco,
+  ) => {
+    editorRef.current = ed;
+    onEditorMount(ed, monaco);
+  };
+
+  useEffect(() => {
+    if (!jumpCommand || !editorRef.current) return;
+    const { filePath, line } = jumpCommand;
+    const widgetId = `comment-${line}-${filePath}`;
+
+    const executeJumpAndMount = () => {
+      const ed = editorRef.current;
+      if (!ed) return;
+
+      ed.revealLineInCenter(line);
+      const myWidget = createCommentWidget(widgetId, line);
+      ed.addContentWidget(myWidget);
+      setActiveWidgets((prev) => [
+        ...prev,
+        {
+          id: widgetId,
+          node: myWidget.getDomNode(),
+          line: line,
+          payload: jumpCommand.payload,
+        },
+      ]);
+    };
+
+    if (currentFilePath !== filePath) {
+      onFileClick(filePath).then(() => {
+        setTimeout(() => {
+          executeJumpAndMount();
+        }, 100);
+      });
+    } else {
+      executeJumpAndMount();
+    }
+  }, [jumpCommand, currentFilePath]);
 
   return (
     <>
@@ -45,7 +113,9 @@ export default function RepoCodeView({
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <h3 className={styles.modalTitle}>Send a message</h3>
-            <p className={styles.modalSubtitle}>sending a message regarding to:</p>
+            <p className={styles.modalSubtitle}>
+              sending a message regarding to:
+            </p>
             <code className={styles.modalCode}>{targetCode}</code>
 
             <input
@@ -62,7 +132,10 @@ export default function RepoCodeView({
             />
 
             <div className={styles.modalActions}>
-              <button onClick={() => setIsModalOpen(false)} className={styles.btnCancel}>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className={styles.btnCancel}
+              >
                 Cancel
               </button>
               <button onClick={onSendComment} className={styles.btnSend}>
@@ -84,9 +157,40 @@ export default function RepoCodeView({
             height="100%"
             language={codelanguage}
             theme="vs-dark"
-            onMount={onEditorMount}
+            onMount={handleLocalEditorMount}
             value={currentCode}
           />
+          {activeWidgets.map((widget) =>
+            createPortal(
+              <div className="bg-zinc-800 border border-zinc-700 p-4 rounded-lg shadow-2xl z-50 text-white min-w-[300px]">
+                <div className="font-bold text-sm text-blue-400 mb-2">
+                  Line {widget.line} has a new comment!
+                </div>
+                <p className="text-sm">
+                  {widget.payload?.content || "No content provided."}
+                </p>
+
+                <button
+                  className="mt-3 text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded"
+                  onClick={() => {
+                    if (editorRef.current) {
+                      editorRef.current.removeContentWidget({
+                        getId: () => widget.id,
+                      } as any);
+                    }
+
+                    // 2. 更新 React 状态，关闭传送门
+                    setActiveWidgets((prev) =>
+                      prev.filter((w) => w.id !== widget.id),
+                    );
+                  }}
+                >
+                  Close
+                </button>
+              </div>,
+              widget.node,
+            ),
+          )}
         </div>
       </div>
     </>

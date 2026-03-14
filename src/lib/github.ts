@@ -48,9 +48,10 @@ export async function getUserRepo(): Promise<ActionResponse<any>> {
       "status" in err &&
       err!.status == 401
     ) {
-      const result = await db
-        .delete(sessions)
-        .where(eq(sessions.userId, session?.user?.id!));
+      // const result = await db
+      //   .delete(sessions)
+      //   .where(eq(sessions.userId, session?.user?.id!));
+      console.log(err);
       return { success: false, error: "user didn't signin", status: 401 };
     } else {
       console.log(err);
@@ -113,7 +114,7 @@ export async function syncProjectTree(
   }
 }
 
-export async function createProject(name: string, owner: string) {
+export async function createProject(id: string, name: string, owner: string) {
   const existing = await db.query.projectTable.findFirst({
     where: and(
       eq(projectTable.repoName, name),
@@ -124,6 +125,7 @@ export async function createProject(name: string, owner: string) {
   const [newProject] = await db
     .insert(projectTable)
     .values({
+      githubRepoId: id,
       title: name,
       repoName: name,
       repoOwner: owner,
