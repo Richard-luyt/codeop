@@ -75,7 +75,11 @@ function FileNodeItem({
       >
         {isFolder ? (
           <>
-            <span className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}>▶</span>
+            <span
+              className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}
+            >
+              ▶
+            </span>
             <span className={styles.folderIcon}>
               <AiFillFolder className={styles.folderIconSvg} />
             </span>
@@ -83,7 +87,9 @@ function FileNodeItem({
         ) : (
           <>
             <span className={styles.spacer} />
-            <span className={styles.fileIconWrap}>{getFileIcon(node.name)}</span>
+            <span className={styles.fileIconWrap}>
+              {getFileIcon(node.name)}
+            </span>
           </>
         )}
         <span className={styles.label}>{node.name}</span>

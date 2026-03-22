@@ -3,6 +3,9 @@ import { getUserRepo } from "@/lib/github";
 import RepoList from "../../components/RepoList";
 import DashboardLayout from "../../components/DashboardLayout";
 import { redirect } from "next/navigation";
+import { db } from "@/db/db";
+import { eq, and } from "drizzle-orm";
+import { accounts, projectTable, sessions } from "@/db/schema";
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -14,8 +17,9 @@ export default async function DashboardPage() {
   if (!response.success) {
     if (response.status == 401) {
       console.log(session);
-      //redirect("/");
-      //redirect("/api/auth/signin?callbackUrl=/dashboard");
+      //await db.delete(accounts).where(eq(accounts.userId, session?.user?.id!));
+      await db.delete(sessions).where(eq(sessions.userId, session?.user?.id!));
+      redirect("/api/auth/signin?callbackUrl=/dashboard");
     }
     return (
       <div style={{ padding: "40px", color: "#e5e5e5" }}>
