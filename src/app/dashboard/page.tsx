@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth, signIn } from "@/auth";
 import { getUserRepo } from "@/lib/github";
 import RepoList from "../../components/RepoList";
 import DashboardLayout from "../../components/DashboardLayout";
@@ -9,17 +9,32 @@ import { accounts, projectTable, sessions } from "@/db/schema";
 
 export default async function DashboardPage() {
   const session = await auth();
-  const response = await getUserRepo();
-  console.log("true");
+  // here is where the callback functions runs. Hence account should have updated
+  // unless there is no session, or the update failed.
   if (!session) {
+    console.log("there is no session");
     redirect("/api/auth/signin?callbackUrl=/dashboard");
   }
+  const response = await getUserRepo();
+  console.log("true");
+
   if (!response.success) {
-    if (response.status == 401) {
+    if (response.error == "RefreshAccessTokenError") {
       console.log(session);
+      console.log("there is an error when refreshing the access token");
       //await db.delete(accounts).where(eq(accounts.userId, session?.user?.id!));
-      await db.delete(sessions).where(eq(sessions.userId, session?.user?.id!));
-      redirect("/api/auth/signin?callbackUrl=/dashboard");
+      //await db.delete(sessions).where(eq(sessions.userId, session?.user?.id!));
+      //redirect("/api/auth/signin?callbackUrl=/dashboard");
+      return (
+        <form
+          action={async () => {
+            "use server";
+            await signIn("github", { redirectTo: "/dashboard" });
+          }}
+        >
+          <button type="submit">Reconnect GitHub</button>
+        </form>
+      );
     }
     return (
       <div style={{ padding: "40px", color: "#e5e5e5" }}>

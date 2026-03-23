@@ -34,6 +34,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         Date.now() / 1000 > account.expires_at - 60
       ) {
         try {
+          console.log("we tried this");
           const response = await fetch(
             "https://github.com/login/oauth/access_token",
             {
@@ -43,8 +44,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
                 Accept: "application/json",
               },
               body: JSON.stringify({
-                client_id: process.env.GITHUB_ID,
-                client_secret: process.env.GITHUB_SECRET,
+                client_id: process.env.AUTH_GITHUB_ID,
+                client_secret: process.env.AUTH_GITHUB_SECRET,
                 grant_type: "refresh_token",
                 refresh_token: account.refresh_token,
               }),
