@@ -179,7 +179,6 @@ export default function RepoCodeView({
                       } as any);
                     }
 
-                    // 2. 更新 React 状态，关闭传送门
                     setActiveWidgets((prev) =>
                       prev.filter((w) => w.id !== widget.id),
                     );
