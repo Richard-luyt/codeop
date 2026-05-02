@@ -8,14 +8,16 @@ import styles from "./FileTree.module.css";
 export default function FileTree({
   nodes,
   onFileClick,
+  activePath,
 }: {
   nodes: FileNode[];
   onFileClick: (path: string) => void;
+  activePath: string,
 }) {
-  const [selectedPath, setSelectedPath] = useState<string | null>(null);
+  //const [selectedPath, setSelectedPath] = useState<string | null>(null);
 
   const handleFileClick = (path: string) => {
-    setSelectedPath(path);
+    //setSelectedPath(path);
     onFileClick(path);
   };
 
@@ -31,7 +33,7 @@ export default function FileTree({
               key={node.path}
               node={node}
               depth={0}
-              selectedPath={selectedPath}
+              activePath={activePath}
               onFileClick={handleFileClick}
             />
           ))}
@@ -44,17 +46,17 @@ export default function FileTree({
 function FileNodeItem({
   node,
   depth,
-  selectedPath,
+  activePath,
   onFileClick,
 }: {
   node: FileNode;
   depth: number;
-  selectedPath: string | null;
+  activePath: string | null;
   onFileClick: (path: string) => void;
 }) {
   const [isOpen, setIsOpen] = useState(depth < 1);
   const isFolder = node.type === "tree";
-  const isSelected = !isFolder && selectedPath === node.path;
+  const isSelected = !isFolder && activePath === node.path;
 
   const handleClick = () => {
     if (isFolder) {
@@ -101,7 +103,7 @@ function FileNodeItem({
               key={child.path}
               node={child}
               depth={depth + 1}
-              selectedPath={selectedPath}
+              activePath={activePath}
               onFileClick={onFileClick}
             />
           ))}

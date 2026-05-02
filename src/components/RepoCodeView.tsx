@@ -61,6 +61,7 @@ export default function RepoCodeView({
   const nodes = treeData?.[0]?.children ?? [];
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const jumpCommand = useEditorStore((state) => state.jumpCommand);
+  const clearJumpCommand = useEditorStore((state) => state.clearJumpCommand);
   const [activeWidgets, setActiveWidgets] = useState<
     Array<{ id: string; node: HTMLElement; line: number; payload?: any }>
   >([]);
@@ -150,7 +151,7 @@ export default function RepoCodeView({
           ← Back
         </span>
         <div className={styles.fileTreeWrap}>
-          <FileTree nodes={nodes} onFileClick={onFileClick} />
+          <FileTree nodes={nodes} onFileClick={onFileClick} activePath = {currentFilePath}/>
         </div>
         <div className={styles.editorWrap}>
           <Editor
@@ -182,6 +183,8 @@ export default function RepoCodeView({
                     setActiveWidgets((prev) =>
                       prev.filter((w) => w.id !== widget.id),
                     );
+
+                    clearJumpCommand();
                   }}
                 >
                   Close

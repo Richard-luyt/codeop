@@ -31,7 +31,7 @@ function formatUpdated(updated_at: string | null): string {
     if (diffMins < 60) return `Updated ${diffMins} min ago`;
     if (diffHours < 24) return diffHours === 1 ? "Updated 1 hour ago" : `Updated ${diffHours} hours ago`;
     if (diffDays < 7) return diffDays === 1 ? "Updated 1 day ago" : `Updated ${diffDays} days ago`;
-    return `Updated ${d.toLocaleDateString()}`;
+    return `Updated ${d.toLocaleDateString('en-CA')}`;
   } catch {
     return "Coming soon";
   }

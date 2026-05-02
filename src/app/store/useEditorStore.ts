@@ -19,6 +19,7 @@ interface EditorState {
     line: number,
     payload?: CommentPayload,
   ) => void;
+  clearJumpCommand: () => void;
 }
 
 export const useEditorStore = create<EditorState>((set) => ({
@@ -27,4 +28,5 @@ export const useEditorStore = create<EditorState>((set) => ({
     set({
       jumpCommand: { repoId, filePath, line, timestamp: Date.now(), payload },
     }),
+  clearJumpCommand: () => set({ jumpCommand: null }),
 }));
