@@ -31,6 +31,15 @@ export const projectTable = pgTable("projects", {
   lastSyncedAt: timestamp("last_synced_at"),
 });
 
+export const RoomInfo = pgTable("roominfo", {
+  roomId: serial("id").primaryKey(),
+  repoId: integer("repo_id"),
+  filePath: text("file_path"),
+  passwordHash: text("passwordhash"),
+  state: boolean("room_state").default(false),
+  people: integer("people").default(0),
+});
+
 export const commentTable = pgTable("comments", {
   id: serial("id").primaryKey(),
 

@@ -327,13 +327,14 @@
 }
 
 .fileTreeWrap {
-  width: 280px;
-  min-width: 240px;
+  width: 300px;
+  min-width: 260px;
   flex-shrink: 0;
   padding-top: 48px;
-  background: #252526;
+  background: #161b22;
   border-radius: 8px;
   overflow: hidden;
+  border: 1px solid #30363d;
 }
 
 .editorWrap {

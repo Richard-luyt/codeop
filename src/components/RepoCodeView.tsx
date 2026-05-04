@@ -10,6 +10,8 @@ import { createPortal } from "react-dom";
 import { useEffect, useRef } from "react";
 import { useEditorStore } from "@/app/store/useEditorStore";
 
+import {getRoomInfo} from "@/lib/actions";
+
 export function createCommentWidget(widgetId: string, dynamicLine: number) {
   const containerNode = document.createElement("div");
   containerNode.id = widgetId;
@@ -41,6 +43,7 @@ export default function RepoCodeView({
   message,
   setMessage,
   onSendComment,
+  repoId,
 }: {
   currentFilePath: string;
   treeData: FileNode[];
@@ -57,6 +60,7 @@ export default function RepoCodeView({
   message: string;
   setMessage: (v: string) => void;
   onSendComment: () => Promise<void>;
+  repoId: number | null;
 }) {
   const nodes = treeData?.[0]?.children ?? [];
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
@@ -65,6 +69,10 @@ export default function RepoCodeView({
   const [activeWidgets, setActiveWidgets] = useState<
     Array<{ id: string; node: HTMLElement; line: number; payload?: any }>
   >([]);
+  const [roomInfo, setRoomInfo] = useState<any | null>();
+  const [isJoined, setIsJoined] = useState<boolean>();
+  const [loading, setLoading] = useState<boolean>();
+  const [isLoadingRoom, setIsLoadingRoom] = useState<boolean>(false);
 
   const handleLocalEditorMount = (
     ed: editor.IStandaloneCodeEditor,
@@ -73,6 +81,35 @@ export default function RepoCodeView({
     editorRef.current = ed;
     onEditorMount(ed, monaco);
   };
+  
+  //const room = await getRoomInfo(currentFilePath);
+
+  useEffect(() => {
+    if(!currentFilePath) return;
+
+    let cancelled = false;
+
+    async function loadRoomInfo() {
+      setIsLoadingRoom(true);
+      try {
+        const room = await getRoomInfo(currentFilePath, repoId);
+        if(!cancelled){
+          setRoomInfo(room.success ? room.data : null);
+        }
+      } catch(err) {
+        if(!cancelled) setRoomInfo(null);
+      } finally {
+        if(!cancelled) setIsLoadingRoom(false);
+      }
+    }
+
+    loadRoomInfo();
+
+    return () => {
+      cancelled = true;
+    };
+
+  }, [currentFilePath, repoId]);
 
   useEffect(() => {
     if (!jumpCommand || !editorRef.current) return;

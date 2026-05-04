@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
+import { ChevronRight, Folder } from "lucide-react";
 import { type FileNode } from "../lib/utiles";
-import { AiFillFolder } from "react-icons/ai";
 import { getFileIcon } from "./getFileIcon";
 import styles from "./FileTree.module.css";
 
@@ -24,7 +24,7 @@ export default function FileTree({
   return (
     <div className={styles.panel}>
       <div className={styles.header}>
-        <span className={styles.headerTitle}>EXPLORER</span>
+        <span className={styles.headerTitle}>Files</span>
       </div>
       <div className={styles.scrollArea}>
         <ul className={styles.list}>
@@ -66,7 +66,7 @@ function FileNodeItem({
     }
   };
 
-  const indent = 8 + depth * 12;
+  const indent = 6 + depth * 16;
 
   return (
     <li>
@@ -80,10 +80,15 @@ function FileNodeItem({
             <span
               className={`${styles.chevron} ${isOpen ? styles.chevronOpen : ""}`}
             >
-              ▶
+              <ChevronRight
+                size={14}
+                strokeWidth={2}
+                className={styles.chevronSvg}
+                aria-hidden
+              />
             </span>
             <span className={styles.folderIcon}>
-              <AiFillFolder className={styles.folderIconSvg} />
+              <Folder size={16} strokeWidth={1.75} className={styles.folderIconSvg} />
             </span>
           </>
         ) : (

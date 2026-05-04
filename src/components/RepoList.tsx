@@ -172,6 +172,7 @@ export default function RepoList({ initialRepos }: { initialRepos: any[] }) {
           message={message}
           setMessage={setMessage}
           onSendComment={handleSendComment}
+          repoId={selectedRepoIdInList}
         />
       )}
     </div>
