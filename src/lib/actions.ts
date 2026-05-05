@@ -149,7 +149,7 @@ export async function createRoomAction(repoId : number | null, filepath : string
     filepath : res[0].filePath,
   };
   const JWT = await signToken(payload);
-  return {success : true, data : res[0].roomId, JWT : JWT, error : null};
+  return {success : true, data : res[0].roomId, JWT : JWT, error : undefined};
 }
 
 export async function joinRoomAction(roomId : number, password : string) {
@@ -172,7 +172,7 @@ export async function joinRoomAction(roomId : number, password : string) {
   if(!ok) {
     return {success : false, error : "wrong password"};
   }
-  const res = await db.update(RoomInfo).set({people : sql`${RoomInfo.people} + 1`}).where(eq(RoomInfo.roomId, roomId));
+  //const res = await db.update(RoomInfo).set({people : sql`${RoomInfo.people} + 1`}).where(eq(RoomInfo.roomId, roomId));
 
   const payload = {
     user : session.user?.id,
@@ -194,9 +194,9 @@ export async function leaveRoomAction(roomId : number) {
   if(!room){
     return {success : false, error : "can not find room"};
   }
-  const res = await db.update(RoomInfo).set({people : sql`${RoomInfo.people} - 1`}).where(eq(RoomInfo.roomId, roomId));
-  if(!res) {
-    return {success : false, error : "can not update db"};
-  }
-  return { success: true, data: res, error : null};
+  //const res = await db.update(RoomInfo).set({people : sql`${RoomInfo.people} - 1`}).where(eq(RoomInfo.roomId, roomId));
+  // if(!res) {
+  //   return {success : false, error : "can not update db"};
+  // }
+  return { success: true, data: null};
 }

@@ -9,8 +9,12 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef } from "react";
 import { useEditorStore } from "@/app/store/useEditorStore";
+import {createRoomAction, joinRoomAction, leaveRoomAction} from "@/lib/actions";
 
 import {getRoomInfo} from "@/lib/actions";
+import {HocuspocusProvider} from "@hocuspocus/provider"
+
+import * as Y from 'yjs';
 
 export function createCommentWidget(widgetId: string, dynamicLine: number) {
   const containerNode = document.createElement("div");
@@ -69,10 +73,29 @@ export default function RepoCodeView({
   const [activeWidgets, setActiveWidgets] = useState<
     Array<{ id: string; node: HTMLElement; line: number; payload?: any }>
   >([]);
-  const [roomInfo, setRoomInfo] = useState<any | null>();
+  const [roomInfo, setRoomInfo] = useState<any | null | undefined>(undefined);
   const [isJoined, setIsJoined] = useState<boolean>();
   const [loading, setLoading] = useState<boolean>();
   const [isLoadingRoom, setIsLoadingRoom] = useState<boolean>(false);
+
+  const [passwordOpen, setPasswordOpen] = useState(false);
+  const [passwordValue, setPasswordValue] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [roomActionType, setRoomActionType] = useState<"create" | "join" | null>(null);
+
+  const onClickCreate = () => {
+    setRoomActionType("create");
+    setPasswordValue("");
+    setPasswordError(null);
+    setPasswordOpen(true);
+  };
+  
+  const onClickJoin = () => {
+    setRoomActionType("join");
+    setPasswordValue("");
+    setPasswordError(null);
+    setPasswordOpen(true);
+  };
 
   const handleLocalEditorMount = (
     ed: editor.IStandaloneCodeEditor,
@@ -81,8 +104,55 @@ export default function RepoCodeView({
     editorRef.current = ed;
     onEditorMount(ed, monaco);
   };
+
+  const renderButton = function () {
+    if (!currentFilePath) return null;
+    if (isLoadingRoom || roomInfo === undefined) {
+      return <button disabled>Loading room...</button>;
+    }
+    if (roomInfo === null) {
+      return <button onClick={onClickCreate}>Create Room</button>;
+    }
+    return <button onClick={onClickJoin}>Join Room</button>;
+  }
   
-  //const room = await getRoomInfo(currentFilePath);
+  const onSubmitPassword = async () => {
+    if (!passwordValue.trim()) {
+      setPasswordError("PLease Enter Your Password");
+      return;
+    }
+    setPasswordError(null);
+    try {
+      if (roomActionType === "create") {
+        const res = await createRoomAction(repoId, currentFilePath, passwordValue);
+        if (!res.success) {
+          setPasswordError(res.error ?? "Failed To Create Room");
+          return;
+        }
+        setPasswordOpen(false);
+        setPasswordValue("");
+        return;
+      }
+      if (roomActionType === "join") {
+        if (!roomInfo?.roomId) {
+          setPasswordError("The Room does not exits");
+          return;
+        }
+        const res = await joinRoomAction(roomInfo.roomId, passwordValue);
+        if (!res.success) {
+          setPasswordError(res.error ?? "Can not join room");
+          return;
+        }
+        setPasswordOpen(false);
+        setPasswordValue("");
+        return;
+      }
+      setPasswordError("unknown error");
+    } catch (e) {
+      console.log(e);
+      setPasswordError("an error occured, please try again later");
+    }
+  };
 
   useEffect(() => {
     if(!currentFilePath) return;
@@ -104,6 +174,7 @@ export default function RepoCodeView({
     }
 
     loadRoomInfo();
+
 
     return () => {
       cancelled = true;
@@ -183,7 +254,43 @@ export default function RepoCodeView({
           </div>
         </div>
       )}
+      {passwordOpen && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
+            <h3 className={styles.modalTitle}>
+              {roomActionType === "create" ? "Create Room" : "Join Room"}
+            </h3>
+            <input
+              type="password"
+              placeholder="Please input password"
+              value={passwordValue}
+              onChange={(e) => setPasswordValue(e.target.value)}
+              className={styles.modalInput}
+            />
+            {passwordError && (
+              <p style={{ color: "#ef4444", marginTop: 8 }}>{passwordError}</p>
+            )}
+            <div className={styles.modalActions}>
+              <button
+                onClick={() => {
+                  setPasswordOpen(false);
+                  setPasswordError(null);
+                }}
+                className={styles.btnCancel}
+              >
+                Cancel
+              </button>
+              <button onClick={onSubmitPassword} className={styles.btnSend}>
+                Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <div className={styles.codeViewRow}>
+        <div style={{ marginBottom: 8 }}>
+          {renderButton()}
+        </div>
         <span onClick={onBack} className={styles.backLink}>
           ← Back
         </span>
