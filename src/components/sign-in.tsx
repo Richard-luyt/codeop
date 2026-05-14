@@ -12,10 +12,11 @@ export default function SignIn() {
         paddingRight: "14px",
         height: "37px",
         minWidth: "120px",
-        fontFamily: "var(--font-glacial), sans-serif",
+        fontFamily: "var(--font-geist-sans), sans-serif",
+        fontSize: "15px",
       }}
     >
-      Start Deploy
+      Sign in with GitHub
     </button>
   );
 }

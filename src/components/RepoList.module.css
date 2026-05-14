@@ -13,7 +13,7 @@
   padding: 10px 14px;
   margin-bottom: 16px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: 17px;
 }
 
 .statusBarSuccess {
@@ -42,14 +42,14 @@
 
 .headerTitle {
   margin: 0;
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 700;
   color: #fff;
 }
 
 .headerCount {
   margin: 4px 0 0;
-  font-size: 14px;
+  font-size: 15px;
   color: #737373;
 }
 
@@ -64,7 +64,7 @@
   border: 1px solid #333;
   background: #1a1a1a;
   color: #e5e5e5;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
 }
 
@@ -101,14 +101,14 @@
 .repoName {
   font-weight: 600;
   color: #fff;
-  font-size: 16px;
+  font-size: 20px;
 }
 
 .badge {
   flex-shrink: 0;
   padding: 2px 8px;
   border-radius: 6px;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 500;
 }
 
@@ -124,7 +124,7 @@
 
 .repoDescription {
   margin: 0 0 12px;
-  font-size: 14px;
+  font-size: 17px;
   color: #a3a3a3;
   line-height: 1.4;
 }
@@ -134,7 +134,7 @@
   align-items: center;
   gap: 16px;
   flex-wrap: wrap;
-  font-size: 13px;
+  font-size: 16px;
   color: #737373;
   margin-bottom: 16px;
 }
@@ -171,9 +171,9 @@
   padding: 8px 14px;
   border-radius: 8px;
   border: none;
-  background: #ffced7;
+  background: #f3a5b5;
   color: #000;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
 }
@@ -196,7 +196,7 @@
   border: none;
   background: #262626;
   color: #e5e5e5;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
 }
 
@@ -206,7 +206,7 @@
   border: none;
   background: #262626;
   color: #e5e5e5;
-  font-size: 13px;
+  font-size: 14px;
   cursor: pointer;
 }
 
@@ -238,7 +238,7 @@
 .modalSubtitle {
   margin: 0 0 8px;
   color: #aaa;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .modalCode {
@@ -247,7 +247,7 @@
   margin-bottom: 16px;
   background: #2d2d2d;
   border-radius: 6px;
-  font-size: 13px;
+  font-size: 14px;
   color: #9cdcfe;
   overflow: auto;
 }
@@ -261,7 +261,7 @@
   border-radius: 8px;
   background: #2d2d2d;
   color: #e0e0e0;
-  font-size: 14px;
+  font-size: 15px;
   outline: none;
 }
 
@@ -274,7 +274,7 @@
   border-radius: 8px;
   background: #2d2d2d;
   color: #e0e0e0;
-  font-size: 14px;
+  font-size: 15px;
   min-height: 80px;
   resize: vertical;
   outline: none;
@@ -318,7 +318,7 @@
   left: 12px;
   z-index: 10;
   color: #a3a3a3;
-  font-size: 14px;
+  font-size: 15px;
   cursor: pointer;
 }
 

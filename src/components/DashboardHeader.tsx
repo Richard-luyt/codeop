@@ -1,11 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { toast } from "sonner";
-import { Bell } from "lucide-react";
 import { useEditorStore } from "@/app/store/useEditorStore";
-
-const PINK = "#ffced7";
 
 export default function DashboardHeader() {
   useEffect(() => {
@@ -54,7 +51,7 @@ export default function DashboardHeader() {
       }}
     >
       <h1
-        style={{ margin: 0, fontSize: "22px", fontWeight: 700, color: "#fff" }}
+        style={{ margin: 0, fontSize: "24px", fontWeight: 700, color: "#fff" }}
       >
         Repositories
       </h1>
@@ -82,57 +79,9 @@ export default function DashboardHeader() {
             border: "none",
             outline: "none",
             color: "#e5e5e5",
-            fontSize: "14px",
+            fontSize: "16px",
           }}
         />
-      </div>
-      <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-        <button
-          type="button"
-          style={{
-            display: "inline-flex",
-            alignItems: "center",
-            gap: "6px",
-            padding: "8px 16px",
-            borderRadius: "8px",
-            border: "none",
-            background: PINK,
-            color: "#000",
-            fontSize: "14px",
-            fontWeight: 500,
-            cursor: "pointer",
-          }}
-        >
-          + New Repo
-        </button>
-        <Bell
-          style={{
-            background: "#262626",
-            border: "none",
-            color: "#e5e5e5",
-            width: "40px",
-            height: "40px",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
-          🔔
-        </Bell>
-        <button
-          type="button"
-          aria-label="Menu"
-          style={{
-            background: "#262626",
-            border: "none",
-            color: "#e5e5e5",
-            width: "40px",
-            height: "40px",
-            borderRadius: "8px",
-            cursor: "pointer",
-          }}
-        >
-          ⋮
-        </button>
       </div>
     </header>
   );

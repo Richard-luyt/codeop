@@ -101,7 +101,7 @@ export default function RepoListCards({
                 {repo.language ?? "undefined"}
               </span>
               <span className={styles.metaItemSmall}>★ {repo.stargazers_count ?? "—"}</span>
-              <span className={styles.metaItemSmall}>🍴 {repo.forks_count ?? "—"}</span>
+              <span className={styles.metaItemSmall}>{repo.forks_count ?? "—"} forks</span>
               <span>{formatUpdated(repo.updated_at)}</span>
             </div>
             {selectedRepoIdInList === repo.id && (
@@ -111,13 +111,13 @@ export default function RepoListCards({
                   disabled={loadingId !== null}
                   className={`${styles.btnOpenCode} ${loadingId === repo.id ? styles.btnOpenCodeLoading : ""} ${loadingId !== null && loadingId !== repo.id ? styles.btnOpenCodeDisabled : ""}`}
                 >
-                  <span>{"< />"}</span> {loadingId === repo.id ? "Syncing…" : "Open Code"}
+                  {loadingId === repo.id ? "Syncing…" : "Open Code"}
                 </button>
                 <button type="button" className={styles.btnSecondary}>
                   PRs (Coming soon)
                 </button>
                 <button type="button" className={styles.btnIconOnly}>
-                  ⚙ Settings
+                  Settings
                 </button>
               </div>
             )}

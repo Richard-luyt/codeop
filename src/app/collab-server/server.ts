@@ -182,6 +182,8 @@ async function pushYDocToGitHub(
     current.sha,
     `chore(collab): sync room ${roomId} content`,
   );
+
+  roomLastUser.delete(roomId);
 }
 
 const server = new Server({
@@ -233,10 +235,11 @@ const server = new Server({
     }
 
     if (!room || room.roomStatus != "open") throw new Error("unauthorized");
+    if (!payload.userId) throw new Error("missing user id in token");
 
     context.roomId = room.roomId;
-    context.userId = payload.userId ?? "unknown";
-
+    context.userId = payload.userId;
+    roomLastUser.set(room.roomId, payload.userId);
     await db
       .update(RoomInfo)
       .set({ people: sql`COALESCE(${RoomInfo.people}, 0) + 1` })
@@ -263,7 +266,9 @@ const server = new Server({
     //   .set({ people: sql`COALESCE(${RoomInfo.people}, 0) + 1` })
     //   .where(eq(RoomInfo.roomId, roomId));
 
-    roomLastUser.set(roomId, String(context.userId ?? ""));
+    if (typeof context.userId === "string" && context.userId.length > 0) {
+      roomLastUser.set(roomId, context.userId);
+    }
 
     const timer = roomTimers.get(roomId);
     if (timer) {
@@ -277,7 +282,7 @@ const server = new Server({
   async onDisconnect({ context }) {
     const roomId = Number(context.roomId);
     if (Number.isNaN(roomId)) {
-      console.error("[onConnect] invalid roomId", context.roomId);
+      console.error("[onDisconnect] invalid roomId", context.roomId);
       return;
     }
     const res = await db
@@ -287,6 +292,12 @@ const server = new Server({
       .returning({ people: RoomInfo.people });
     const people = res[0].people;
     if (people === 0) {
+      const existing = roomTimers.get(roomId);
+      if (existing) {
+        clearTimeout(existing);
+        roomTimers.delete(roomId);
+      }
+
       const t = setTimeout(async () => {
         try {
           const update = roomDocUpdates.get(roomId);
@@ -299,20 +310,25 @@ const server = new Server({
                 lastError: null,
               })
               .where(eq(RoomInfo.roomId, roomId));
-            roomTimers.delete(roomId);
+            roomDocUpdates.delete(roomId);
+            roomLastUser.delete(roomId);
             return;
           }
           const doc = new Y.Doc();
           Y.applyUpdate(doc, update);
 
           const finalText = doc.getText("content").toString();
-          const userId = roomLastUser.get(roomId);
+          const contextUserId =
+            typeof context.userId === "string" && context.userId.length > 0
+              ? context.userId
+              : undefined;
+          const lastUid = roomLastUser.get(roomId) ?? contextUserId;
 
-          await pushYDocToGitHub(roomId, finalText, userId);
+          await pushYDocToGitHub(roomId, finalText, lastUid);
 
           await db
             .update(RoomInfo)
-            .set({ roomStatus: "closed", people: 0 })
+            .set({ roomStatus: "closed", people: 0, lastError: null })
             .where(eq(RoomInfo.roomId, roomId));
         } catch (err) {
           await db
@@ -326,6 +342,8 @@ const server = new Server({
           console.error("merge failed", err);
         } finally {
           roomTimers.delete(roomId);
+          roomDocUpdates.delete(roomId);
+          roomLastUser.delete(roomId);
         }
       }, 10_000);
       roomTimers.set(roomId, t);
@@ -349,10 +367,11 @@ const server = new Server({
       return;
     }
 
-    const initial = await loadInitialContentFromGitHub(
-      roomId,
-      String(context?.userId ?? ""),
-    );
+    const contextUserId =
+      typeof context?.userId === "string" && context.userId.length > 0
+        ? context.userId
+        : undefined;
+    const initial = await loadInitialContentFromGitHub(roomId, contextUserId);
     if (!initial) {
       console.warn(
         `[onLoadDocument] empty initial for room ${roomId}, allow empty doc`,

@@ -150,7 +150,7 @@ export const repoListStyles = {
     padding: "8px 14px",
     borderRadius: "8px",
     border: "none",
-    background: "#ffced7",
+    background: "#f3a5b5",
     color: "#000",
     fontSize: "13px",
     fontWeight: 500,
