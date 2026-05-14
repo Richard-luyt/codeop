@@ -9,12 +9,19 @@ import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef } from "react";
 import { useEditorStore } from "@/app/store/useEditorStore";
-import {createRoomAction, joinRoomAction, leaveRoomAction} from "@/lib/actions";
+import {
+  createRoomAction,
+  joinRoomAction,
+  leaveRoomAction,
+} from "@/lib/actions";
 
-import {getRoomInfo} from "@/lib/actions";
-import {HocuspocusProvider} from "@hocuspocus/provider"
+import { getRoomInfo } from "@/lib/actions";
+import {
+  HocuspocusProvider,
+  HocuspocusProviderWebsocket,
+} from "@hocuspocus/provider";
 
-import * as Y from 'yjs';
+import * as Y from "yjs";
 
 export function createCommentWidget(widgetId: string, dynamicLine: number) {
   const containerNode = document.createElement("div");
@@ -74,14 +81,21 @@ export default function RepoCodeView({
     Array<{ id: string; node: HTMLElement; line: number; payload?: any }>
   >([]);
   const [roomInfo, setRoomInfo] = useState<any | null | undefined>(undefined);
-  const [isJoined, setIsJoined] = useState<boolean>();
-  const [loading, setLoading] = useState<boolean>();
+  //const [loading, setLoading] = useState<boolean>();
   const [isLoadingRoom, setIsLoadingRoom] = useState<boolean>(false);
 
   const [passwordOpen, setPasswordOpen] = useState(false);
   const [passwordValue, setPasswordValue] = useState("");
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [roomActionType, setRoomActionType] = useState<"create" | "join" | null>(null);
+  const [roomActionType, setRoomActionType] = useState<
+    "create" | "join" | null
+  >(null);
+
+  const [isJoined, setIsJoined] = useState<boolean>(false);
+  const providerRef = useRef<any | null>(null);
+  const wsRef = useRef<any | null>(null);
+  const ydocRef = useRef<any | null>(null);
+  const bindingRef = useRef<any | null>(null);
 
   const onClickCreate = () => {
     setRoomActionType("create");
@@ -89,7 +103,7 @@ export default function RepoCodeView({
     setPasswordError(null);
     setPasswordOpen(true);
   };
-  
+
   const onClickJoin = () => {
     setRoomActionType("join");
     setPasswordValue("");
@@ -105,17 +119,206 @@ export default function RepoCodeView({
     onEditorMount(ed, monaco);
   };
 
+  const cleanupCollab = async (notifyLeave: boolean) => {
+    try {
+      if (notifyLeave && roomInfo?.roomId) {
+        await leaveRoomAction(roomInfo.roomId);
+      }
+    } catch (e) {
+      console.error("leaveRoomAction failed:", e);
+    } finally {
+      bindingRef.current?.destroy?.();
+      providerRef.current?.destroy?.();
+      ydocRef.current?.destroy?.();
+      bindingRef.current = null;
+      providerRef.current = null;
+      ydocRef.current = null;
+      setIsJoined(false);
+    }
+  };
+
+  // async function connectCollab(
+  //   roomId: string,
+  //   token: string,
+  //   should_create: boolean,
+  // ) {
+  //   console.log("[connectCollab] start", {
+  //     roomId,
+  //     hasEditor: !!editorRef.current,
+  //   });
+
+  //   if (!editorRef.current) throw new Error("editor not ready");
+  //   if (!roomId || Number.isNaN(Number(roomId))) {
+  //     throw new Error(`invalid roomId: ${roomId}`);
+  //   }
+  //   if (!token) throw new Error("missing token");
+
+  //   await cleanupCollab(false);
+
+  //   const ws = new HocuspocusProviderWebsocket({
+  //     url: process.env.NEXT_PUBLIC_COLLAB_WS_URL ?? "ws://localhost:1234",
+  //   });
+  //   const ydoc = new Y.Doc();
+
+  //   const payload = JSON.parse(atob(token.split(".")[1]));
+  //   console.log("[token payload]", payload, "roomId arg:", roomId);
+
+  //   if (String(payload.roomId) !== String(roomId)) {
+  //     throw new Error(
+  //       `token roomId mismatch: token=${payload.roomId}, arg=${roomId}`,
+  //     );
+  //   }
+
+  //   const provider = new HocuspocusProvider({
+  //     websocketProvider: ws,
+  //     name: roomId,
+  //     token,
+  //     document: ydoc,
+  //   });
+
+  //   //provider.connect?.();
+
+  //   ws.on?.("status", (e: any) => console.log("[ws status]", e));
+  //   ws.on?.("open", () => console.log("[ws open]", roomId));
+  //   ws.on?.("close", () => console.log("[ws close]", roomId));
+
+  //   provider.on("status", ({ status }: { status: string }) =>
+  //     console.log("[provider status]", status, roomId),
+  //   );
+  //   provider.on("synced", () => {
+  //     console.log("[provider synced]", roomId);
+  //     setIsJoined(true);
+  //   });
+
+  //   ws.connect?.();
+
+  //   const ytext = ydoc.getText("content");
+  //   if (should_create) {
+  //     if (ytext.length === 0) ytext.insert(0, currentCode ?? "");
+  //   }
+  //   const model = editorRef.current.getModel();
+
+  //   if (!model) {
+  //     throw new Error("Monaco model not ready");
+  //   }
+
+  //   const { MonacoBinding } = await import("y-monaco");
+
+  //   const binding = new MonacoBinding(
+  //     ytext,
+  //     model,
+  //     new Set([editorRef.current]),
+  //     provider.awareness,
+  //   );
+
+  //   wsRef.current = ws;
+  //   providerRef.current = provider;
+  //   ydocRef.current = ydoc;
+  //   bindingRef.current = binding;
+
+  //   setIsJoined(true);
+  // }
+
+  async function connectCollab(
+    roomId: string,
+    token: string,
+    shouldSeed: boolean,
+  ) {
+    console.log("[connectCollab] start", {
+      roomId,
+      hasEditor: !!editorRef.current,
+    });
+    if (!editorRef.current) throw new Error("editor not ready");
+    if (!roomId || Number.isNaN(Number(roomId)))
+      throw new Error(`invalid roomId: ${roomId}`);
+    if (!token) throw new Error("missing token");
+    await cleanupCollab(false);
+    const ydoc = new Y.Doc();
+    const provider = new HocuspocusProvider({
+      url: process.env.NEXT_PUBLIC_COLLAB_WS_URL ?? "ws://localhost:1234",
+      name: roomId,
+      token,
+      document: ydoc,
+    });
+    provider.on("status", ({ status }: { status: string }) => {
+      console.log("[provider status]", status, roomId);
+      if (status === "connected") setIsJoined(true);
+    });
+    provider.on("synced", () => {
+      console.log("[provider synced]", roomId);
+      setIsJoined(true);
+    });
+    const model = editorRef.current.getModel();
+    if (!model) throw new Error("Monaco model not ready");
+    const ytext = ydoc.getText("content");
+    //if (shouldSeed && ytext.length === 0) ytext.insert(0, currentCode ?? "");
+    const { MonacoBinding } = await import("y-monaco");
+    const binding = new MonacoBinding(
+      ytext,
+      model,
+      new Set([editorRef.current]),
+      provider.awareness,
+    );
+    providerRef.current = provider;
+    ydocRef.current = ydoc;
+    bindingRef.current = binding;
+  }
+
+  async function disconnectCollab() {
+    // await leaveRoomAction(roomInfo.roomId);
+    // bindingRef.current?.destroy();
+    // providerRef.current?.destroy();
+    // wsRef.current?.destroy();
+    // ydocRef.current?.destroy();
+    // setIsJoined(false);
+    if (!roomInfo?.roomId) {
+      await cleanupCollab(false);
+      return;
+    }
+    await cleanupCollab(true);
+  }
+
+  useEffect(() => {
+    return () => {
+      cleanupCollab(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isJoined) return;
+    const model = editorRef.current?.getModel();
+    if (!model) return;
+    if (model.getValue() !== (currentCode ?? "")) {
+      model.setValue(currentCode ?? "");
+    }
+  }, [currentCode, currentFilePath, isJoined]);
+
   const renderButton = function () {
     if (!currentFilePath) return null;
     if (isLoadingRoom || roomInfo === undefined) {
       return <button disabled>Loading room...</button>;
     }
     if (roomInfo === null) {
-      return <button onClick={onClickCreate}>Create Room</button>;
+      return (
+        <button type="button" onClick={onClickCreate}>
+          Create Room
+        </button>
+      );
     }
-    return <button onClick={onClickJoin}>Join Room</button>;
-  }
-  
+    if (isJoined == true) {
+      return (
+        <button type="button" onClick={disconnectCollab}>
+          Leave Room
+        </button>
+      );
+    }
+    return (
+      <button type="button" onClick={onClickJoin}>
+        Join Room
+      </button>
+    );
+  };
+
   const onSubmitPassword = async () => {
     if (!passwordValue.trim()) {
       setPasswordError("PLease Enter Your Password");
@@ -124,13 +327,39 @@ export default function RepoCodeView({
     setPasswordError(null);
     try {
       if (roomActionType === "create") {
-        const res = await createRoomAction(repoId, currentFilePath, passwordValue);
+        const res = await createRoomAction(
+          repoId,
+          currentFilePath,
+          passwordValue,
+        );
         if (!res.success) {
           setPasswordError(res.error ?? "Failed To Create Room");
           return;
         }
+        if (!res.JWT) {
+          console.log("can not issue a JWT");
+          return;
+        }
+        console.log("[create result]", res.data, res.JWT?.slice(0, 10));
+
+        const roomIdStr = String(res.data ?? roomInfo?.roomId ?? "");
+        if (!/^\d+$/.test(roomIdStr)) {
+          throw new Error(`invalid room id from action: ${roomIdStr}`);
+        }
+
+        await connectCollab(String(res.data), res.JWT, true);
+        setRoomInfo(
+          (prev: any) =>
+            prev ?? {
+              roomId: Number(String(res.data)),
+              filePath: currentFilePath,
+            },
+        );
+
         setPasswordOpen(false);
         setPasswordValue("");
+        setPasswordError(null);
+
         return;
       }
       if (roomActionType === "join") {
@@ -143,19 +372,36 @@ export default function RepoCodeView({
           setPasswordError(res.error ?? "Can not join room");
           return;
         }
+        if (!res.JWT) {
+          console.log("can not issue a JWT");
+          return;
+        }
+
+        const roomIdNum =
+          typeof res.data === "object" && res.data?.roomId
+            ? Number(res.data.roomId)
+            : Number(roomInfo?.roomId);
+        if (!Number.isFinite(roomIdNum)) {
+          throw new Error(`invalid room id from action: ${String(res.data)}`);
+        }
+        await connectCollab(String(roomIdNum), res.JWT, false);
+
         setPasswordOpen(false);
         setPasswordValue("");
+        setPasswordError(null);
+
         return;
       }
       setPasswordError("unknown error");
     } catch (e) {
       console.log(e);
       setPasswordError("an error occured, please try again later");
+      await cleanupCollab(false);
     }
   };
 
   useEffect(() => {
-    if(!currentFilePath) return;
+    if (!currentFilePath) return;
 
     let cancelled = false;
 
@@ -163,23 +409,21 @@ export default function RepoCodeView({
       setIsLoadingRoom(true);
       try {
         const room = await getRoomInfo(currentFilePath, repoId);
-        if(!cancelled){
+        if (!cancelled) {
           setRoomInfo(room.success ? room.data : null);
         }
-      } catch(err) {
-        if(!cancelled) setRoomInfo(null);
+      } catch (err) {
+        if (!cancelled) setRoomInfo(null);
       } finally {
-        if(!cancelled) setIsLoadingRoom(false);
+        if (!cancelled) setIsLoadingRoom(false);
       }
     }
 
     loadRoomInfo();
 
-
     return () => {
       cancelled = true;
     };
-
   }, [currentFilePath, repoId]);
 
   useEffect(() => {
@@ -272,6 +516,7 @@ export default function RepoCodeView({
             )}
             <div className={styles.modalActions}>
               <button
+                type="button"
                 onClick={() => {
                   setPasswordOpen(false);
                   setPasswordError(null);
@@ -280,7 +525,11 @@ export default function RepoCodeView({
               >
                 Cancel
               </button>
-              <button onClick={onSubmitPassword} className={styles.btnSend}>
+              <button
+                type="button"
+                onClick={onSubmitPassword}
+                className={styles.btnSend}
+              >
                 Confirm
               </button>
             </div>
@@ -288,14 +537,16 @@ export default function RepoCodeView({
         </div>
       )}
       <div className={styles.codeViewRow}>
-        <div style={{ marginBottom: 8 }}>
-          {renderButton()}
-        </div>
+        <div style={{ marginBottom: 8 }}>{renderButton()}</div>
         <span onClick={onBack} className={styles.backLink}>
           ← Back
         </span>
         <div className={styles.fileTreeWrap}>
-          <FileTree nodes={nodes} onFileClick={onFileClick} activePath = {currentFilePath}/>
+          <FileTree
+            nodes={nodes}
+            onFileClick={onFileClick}
+            activePath={currentFilePath}
+          />
         </div>
         <div className={styles.editorWrap}>
           <Editor
@@ -303,7 +554,7 @@ export default function RepoCodeView({
             language={codelanguage}
             theme="vs-dark"
             onMount={handleLocalEditorMount}
-            value={currentCode}
+            defaultValue={currentCode}
           />
           {activeWidgets.map((widget) =>
             createPortal(

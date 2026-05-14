@@ -36,7 +36,8 @@ export const RoomInfo = pgTable("roominfo", {
   repoId: integer("repo_id"),
   filePath: text("file_path"),
   passwordHash: text("passwordhash"),
-  state: boolean("room_state").default(false),
+  roomStatus: text("room_status").default("open"),
+  lastError: text("last_error"),
   people: integer("people").default(0),
 });
 
