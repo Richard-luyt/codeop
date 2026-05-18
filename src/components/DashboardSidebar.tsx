@@ -1,7 +1,15 @@
 "use client";
 
-const PINK = "#f3a5b5";
-const SIDEBAR_WIDTH = "240px";
+import {
+  AlertCircle,
+  BarChart2,
+  Folder,
+  GitPullRequest,
+  Users,
+} from "lucide-react";
+import styles from "./DashboardChrome.module.css";
+
+const SIDEBAR_WIDTH = "248px";
 
 export { SIDEBAR_WIDTH };
 
@@ -14,129 +22,61 @@ export default function DashboardSidebar({
 }) {
   const displayName = user?.name ?? "User";
   const username = user?.email?.split("@")[0] ?? "user";
+  const navItems = [
+    { label: "Repositories", icon: Folder, active: true },
+    { label: "Pull Requests", icon: GitPullRequest, active: false },
+    { label: "Issues", icon: AlertCircle, active: false },
+    { label: "Teams", icon: Users, active: false },
+    { label: "Analytics", icon: BarChart2, active: false },
+  ];
 
   return (
-    <aside
-      style={{
-        position: "fixed",
-        left: 0,
-        top: 0,
-        width: SIDEBAR_WIDTH,
-        height: "100vh",
-        borderRight: "1px solid #262626",
-        display: "flex",
-        flexDirection: "column",
-        padding: "20px 0",
-        background: "#0d0d0d",
-        overflowY: "auto",
-      }}
-    >
-      <div style={{ padding: "0 20px 24px" }}>
-        <span style={{ fontSize: "22px", fontWeight: 700 }}>
-          <span style={{ color: "#888" }}>{"< /> "}</span>
-          <span style={{ color: PINK }}>CodeOp</span>
+    <aside className={styles.sidebar}>
+      <div className={styles.sidebarBrand}>
+        <span className={styles.logoRow}>
+          <span className={styles.logoText}>CODEOP</span>
         </span>
       </div>
-      <nav style={{ flex: 1 }}>
-        <a
-          href="#"
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "10px",
-            padding: "10px 20px",
-            margin: "2px 12px",
-            borderRadius: "8px",
-            background: "rgba(243, 165, 181, 0.25)",
-            color: PINK,
-            textDecoration: "none",
-            fontSize: "16px",
-            fontWeight: 500,
-          }}
-        >
-          Repositories
-        </a>
-        {["Pull Requests", "Issues", "Teams", "Analytics"].map((label) => (
+      <nav className={styles.sidebarNav}>
+        {navItems.map(({ label, icon: Icon, active }) => (
           <a
             key={label}
             href="#"
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "10px",
-              padding: "10px 20px",
-              margin: "2px 12px",
-              borderRadius: "8px",
-              color: "#a3a3a3",
-              textDecoration: "none",
-              fontSize: "16px",
-            }}
+            className={`${styles.navItem} ${active ? styles.navItemActive : ""}`}
           >
-            <span style={{ opacity: 0.7 }}>•</span> {label}
+            <Icon className={styles.navIcon} size={16} strokeWidth={1.75} />
+            <span className={styles.navText}>{label}</span>
           </a>
         ))}
       </nav>
-      <div style={{ padding: "16px 20px 8px", borderTop: "1px solid #262626" }}>
-        <div style={{ fontSize: "12px", color: "#737373", marginBottom: "8px", textTransform: "uppercase", letterSpacing: "0.5px" }}>
-          Recent
-        </div>
+      <div className={styles.sidebarSection}>
+        <div className={styles.sectionLabel}>Recent</div>
         {recentRepos.length > 0
           ? recentRepos.slice(0, 3).map((r) => (
-              <a
-                key={r.fullName ?? r.name}
-                href="#"
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "8px",
-                  padding: "6px 0",
-                  color: "#a3a3a3",
-                  textDecoration: "none",
-                  fontSize: "14px",
-                }}
-              >
-                <span style={{ opacity: 0.8 }}>📂</span> {r.name}
+              <a key={r.fullName ?? r.name} href="#" className={styles.recentLink}>
+                {r.name}
               </a>
             ))
-          : (
-              <div style={{ color: "#525252", fontSize: "14px" }}>Coming soon</div>
-            )}
+          : <div className={styles.emptyHint}>Coming soon</div>}
       </div>
-      <div
-        style={{
-          padding: "16px 20px",
-          borderTop: "1px solid #262626",
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-        }}
-      >
-        <div
-          style={{
-            width: "36px",
-            height: "36px",
-            borderRadius: "50%",
-            background: "#333",
-            overflow: "hidden",
-            flexShrink: 0,
-          }}
-        >
+      <div className={styles.profileRow}>
+        <div className={styles.avatar}>
           {user?.image ? (
             <img src={user.image} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
           ) : (
-            <div style={{ width: "100%", height: "100%", background: "#404040", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "15px", color: "#a3a3a3" }}>
+            <div className={styles.avatarFallback}>
               {displayName.charAt(0).toUpperCase()}
             </div>
           )}
         </div>
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div style={{ fontSize: "15px", fontWeight: 500, color: "#e5e5e5" }}>{displayName}</div>
-          <div style={{ fontSize: "13px", color: "#737373" }}>@{username}</div>
+        <div className={styles.profileMeta}>
+          <div className={styles.name}>{displayName}</div>
+          <div className={styles.handle}>@{username}</div>
         </div>
         <button
           type="button"
           aria-label="User menu"
-          style={{ background: "none", border: "none", color: "#737373", cursor: "pointer", padding: "4px" }}
+          className={styles.profileMenu}
         >
           ⋮
         </button>

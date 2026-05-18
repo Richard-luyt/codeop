@@ -1,22 +1,32 @@
 "use client";
 
+import type { ReactNode } from "react";
+import { Github } from "lucide-react";
 import { signIn } from "next-auth/react";
 
-export default function SignIn() {
+type SignInProps = {
+  className?: string;
+  children?: ReactNode;
+  showIcon?: boolean;
+};
+
+export default function SignIn({
+  className,
+  children,
+  showIcon = true,
+}: SignInProps) {
   return (
     <button
       onClick={() => signIn("github", { redirectTo: "/dashboard" })}
-      className="flex items-center justify-center rounded-lg bg-brand text-black font-bold hover:bg-brandover hover:text-grey transition-all active:scale-95"
-      style={{
-        paddingLeft: "14px",
-        paddingRight: "14px",
-        height: "37px",
-        minWidth: "120px",
-        fontFamily: "var(--font-geist-sans), sans-serif",
-        fontSize: "15px",
-      }}
+      className={[
+        "inline-flex h-10 min-w-[148px] items-center justify-center gap-2 rounded-md border border-zinc-800 px-4",
+        "bg-zinc-50 text-zinc-950 text-sm font-medium transition-colors hover:bg-zinc-200",
+        "active:scale-[0.98]",
+        className ?? "",
+      ].join(" ")}
     >
-      Sign in with GitHub
+      {showIcon ? <Github size={14} strokeWidth={1.8} aria-hidden /> : null}
+      {children ?? "Sign in with GitHub"}
     </button>
   );
 }

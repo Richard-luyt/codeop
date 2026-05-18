@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
 import { useEditorStore } from "@/app/store/useEditorStore";
+import styles from "./DashboardChrome.module.css";
 
 export default function DashboardHeader() {
   useEffect(() => {
@@ -40,47 +41,13 @@ export default function DashboardHeader() {
   }, []);
 
   return (
-    <header
-      style={{
-        borderBottom: "1px solid #262626",
-        padding: "16px 24px",
-        display: "flex",
-        alignItems: "center",
-        gap: "24px",
-        flexWrap: "wrap",
-      }}
-    >
-      <h1
-        style={{ margin: 0, fontSize: "24px", fontWeight: 700, color: "#fff" }}
-      >
-        Repositories
-      </h1>
-      <div
-        style={{
-          flex: 1,
-          minWidth: "200px",
-          maxWidth: "400px",
-          display: "flex",
-          alignItems: "center",
-          gap: "10px",
-          padding: "8px 14px",
-          background: "#1a1a1a",
-          borderRadius: "8px",
-          border: "1px solid #333",
-        }}
-      >
-        <span style={{ color: "#737373" }}>🔍</span>
+    <header className={styles.header}>
+      <div className={styles.searchWrap}>
+        <span aria-hidden className={styles.searchIcon}>⌕</span>
         <input
+          className={styles.searchInput}
           type="search"
           placeholder="Search repositories..."
-          style={{
-            flex: 1,
-            background: "none",
-            border: "none",
-            outline: "none",
-            color: "#e5e5e5",
-            fontSize: "16px",
-          }}
         />
       </div>
     </header>

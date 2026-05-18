@@ -108,64 +108,53 @@ body {
   line-height: 1.5;
 }
 
-.hero-gradient-field {
+.landing-grid-bg {
   position: absolute;
-  inset: -24%;
+  inset: 0;
+  pointer-events: none;
   background-image:
-    radial-gradient(44% 38% at 14% 16%, rgba(243, 165, 181, 0.42) 0%, rgba(243, 165, 181, 0.16) 48%, transparent 74%),
-    radial-gradient(38% 34% at 86% 18%, rgba(255, 182, 195, 0.34) 0%, rgba(255, 182, 195, 0.1) 52%, transparent 74%),
-    radial-gradient(42% 34% at 46% 86%, rgba(243, 165, 181, 0.3) 0%, rgba(243, 165, 181, 0.08) 52%, transparent 76%);
-  background-size: 160% 160%;
-  filter: blur(42px);
-  opacity: 0.68;
-  animation: heroGradientFlow 14s ease-in-out infinite alternate;
+    linear-gradient(to right, rgba(39, 39, 42, 0.34) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(39, 39, 42, 0.34) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle at 50% 30%, rgba(0, 0, 0, 0.72), rgba(0, 0, 0, 0.92) 55%, transparent 100%);
+  opacity: 0.5;
 }
 
-.hero-gradient-field-alt {
-  background-image:
-    radial-gradient(40% 34% at 24% 82%, rgba(255, 182, 195, 0.3) 0%, rgba(255, 182, 195, 0.1) 56%, transparent 76%),
-    radial-gradient(36% 32% at 78% 56%, rgba(243, 165, 181, 0.28) 0%, rgba(243, 165, 181, 0.08) 54%, transparent 76%),
-    radial-gradient(30% 28% at 52% 14%, rgba(243, 165, 181, 0.22) 0%, rgba(243, 165, 181, 0.06) 58%, transparent 78%);
-  filter: blur(52px);
-  opacity: 0.52;
-  mix-blend-mode: screen;
-  animation: heroGradientFlowAlt 18s ease-in-out infinite alternate;
+.landing-ambient {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(46% 34% at 50% 28%, rgba(250, 250, 250, 0.14) 0%, rgba(161, 161, 170, 0.08) 18%, rgba(39, 39, 42, 0.05) 32%, transparent 68%);
 }
 
-@keyframes heroGradientFlow {
-  0% {
-    background-position: 0% 0%, 100% 0%, 50% 100%;
-    opacity: 0.38;
-    transform: translate3d(-3%, -1.5%, 0) scale(0.98);
-  }
-  50% {
-    background-position: 55% 35%, 38% 70%, 8% 25%;
-    opacity: 0.72;
-    transform: translate3d(4%, 1.5%, 0) scale(1.08);
-  }
-  100% {
-    background-position: 100% 80%, 8% 35%, 62% 0%;
-    opacity: 0.44;
-    transform: translate3d(-2%, 3%, 0) scale(0.95);
-  }
+.landing-card {
+  position: relative;
+  overflow: hidden;
+  transition: border-color 180ms ease, background-color 180ms ease;
 }
 
-@keyframes heroGradientFlowAlt {
-  0% {
-    background-position: 100% 100%, 0% 50%, 70% 0%;
-    opacity: 0.24;
-    transform: translate3d(2.5%, 0, 0) scale(1.05);
-  }
-  50% {
-    background-position: 40% 20%, 70% 90%, 12% 70%;
-    opacity: 0.58;
-    transform: translate3d(-3.5%, -2.5%, 0) scale(0.96);
-  }
-  100% {
-    background-position: 0% 60%, 90% 10%, 55% 100%;
-    opacity: 0.3;
-    transform: translate3d(2%, 2.5%, 0) scale(1.08);
-  }
+.landing-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  pointer-events: none;
+  background: radial-gradient(
+    330px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(250, 250, 250, 0.14) 0%,
+    rgba(161, 161, 170, 0.09) 22%,
+    transparent 58%
+  );
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.landing-card:hover {
+  border-color: rgba(63, 63, 70, 1);
+}
+
+.landing-card:hover::before {
+  opacity: 1;
 }
 
 button,

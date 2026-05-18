@@ -37,6 +37,31 @@ function formatUpdated(updated_at: string | null): string {
   }
 }
 
+function PremiumSpinner({ id }: { id: string }) {
+  const gradientId = `spinner-gradient-${id}`;
+  return (
+    <span className={styles.spinnerWrap} aria-hidden>
+      <svg viewBox="0 0 24 24" className={styles.spinnerSvg}>
+        <defs>
+          <linearGradient id={gradientId} x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="rgba(244, 244, 245, 0.08)" />
+            <stop offset="55%" stopColor="rgba(228, 228, 231, 0.56)" />
+            <stop offset="100%" stopColor="rgba(250, 250, 250, 1)" />
+          </linearGradient>
+        </defs>
+        <circle className={styles.spinnerTrack} cx="12" cy="12" r="8.5" fill="none" strokeWidth="2" />
+        <path
+          className={styles.spinnerArc}
+          d="M12 3.5a8.5 8.5 0 0 1 8.2 6.2"
+          fill="none"
+          stroke={`url(#${gradientId})`}
+          strokeWidth="2.2"
+        />
+      </svg>
+    </span>
+  );
+}
+
 export default function RepoListCards({
   initialRepos,
   status,
@@ -80,12 +105,15 @@ export default function RepoListCards({
         </div>
       </div>
       <ul className={styles.repoList}>
-        {initialRepos.map((repo) => (
-          <li
-            key={repo.id}
-            onClick={() => setSelectedRepoIdInList((prev) => (prev === repo.id ? null : repo.id))}
-            className={`${styles.repoCard} ${selectedRepoIdInList === repo.id ? styles.repoCardSelected : ""}`}
-          >
+        {initialRepos.map((repo) => {
+          const hasLanguage =
+            typeof repo.language === "string" && repo.language.trim().length > 0;
+          return (
+            <li
+              key={repo.id}
+              onClick={() => setSelectedRepoIdInList((prev) => (prev === repo.id ? null : repo.id))}
+              className={`${styles.repoCard} ${selectedRepoIdInList === repo.id ? styles.repoCardSelected : ""}`}
+            >
             <div className={styles.repoCardHeader}>
               <span className={styles.repoName}>{repo.name}</span>
               <span className={`${styles.badge} ${repo.private ? styles.badgePrivate : styles.badgePublic}`}>
@@ -96,10 +124,12 @@ export default function RepoListCards({
               {repo.description || "Coming soon"}
             </p>
             <div className={styles.repoMeta}>
-              <span className={styles.metaItem}>
-                <span className={styles.langDot} style={{ background: languageColor(repo.language) }} />
-                {repo.language ?? "undefined"}
-              </span>
+              {hasLanguage && (
+                <span className={styles.metaItem}>
+                  <span className={styles.langDot} style={{ background: languageColor(repo.language) }} />
+                  {repo.language}
+                </span>
+              )}
               <span className={styles.metaItemSmall}>★ {repo.stargazers_count ?? "—"}</span>
               <span className={styles.metaItemSmall}>{repo.forks_count ?? "—"} forks</span>
               <span>{formatUpdated(repo.updated_at)}</span>
@@ -111,7 +141,14 @@ export default function RepoListCards({
                   disabled={loadingId !== null}
                   className={`${styles.btnOpenCode} ${loadingId === repo.id ? styles.btnOpenCodeLoading : ""} ${loadingId !== null && loadingId !== repo.id ? styles.btnOpenCodeDisabled : ""}`}
                 >
-                  {loadingId === repo.id ? "Syncing…" : "Open Code"}
+                  {loadingId === repo.id ? (
+                    <>
+                      <PremiumSpinner id={String(repo.id)} />
+                      Syncing
+                    </>
+                  ) : (
+                    "Open Code"
+                  )}
                 </button>
                 <button type="button" className={styles.btnSecondary}>
                   PRs (Coming soon)
@@ -121,8 +158,9 @@ export default function RepoListCards({
                 </button>
               </div>
             )}
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     </>
   );

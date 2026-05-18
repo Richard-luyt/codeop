@@ -11,8 +11,7 @@ function LogoIcon() {
       className="shrink-0"
       aria-hidden
     >
-      <circle cx="14" cy="14" r="13" fill="var(--brand)" />
-      {/* ">" at bottom-left of circle */}
+      <circle cx="14" cy="14" r="13" fill="#fafafa" />
       <path
         d="M3 10 L11 18 L3 26"
         stroke="black"
@@ -29,7 +28,7 @@ function Logo() {
     <Link href="/" className="flex items-center gap-1 group">
       <LogoIcon />
       <span
-        className="text-xl font-black tracking-wide text-white group-hover:text-brand transition-colors"
+        className="text-xl font-black text-zinc-50 transition-colors group-hover:text-zinc-300"
         style={{
           fontFamily:
             "SFMono-Regular, SF Mono, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace",
@@ -44,21 +43,16 @@ function Logo() {
 
 function NavLinks() {
   return (
-    <div
-      className="flex items-center gap-8"
-      style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-    >
+    <div className="flex items-center gap-7">
       <Link
         href="/docs"
-        className="text-brandgrey hover:text-brand transition-colors font-normal"
-        style={{ fontSize: "1.05rem" }}
+        className="text-zinc-400 hover:text-zinc-100 text-sm transition-colors"
       >
         Docs
       </Link>
       <Link
         href="/demos"
-        className="text-brandgrey hover:text-brand transition-colors font-normal"
-        style={{ fontSize: "1.05rem" }}
+        className="text-zinc-400 hover:text-zinc-100 text-sm transition-colors"
       >
         Demos
       </Link>
@@ -68,12 +62,17 @@ function NavLinks() {
 
 function NavBar() {
   return (
-    <nav className="sticky top-0 z-50 w-full bg-black/80 border-b border-white/15 backdrop-blur">
+    <nav className="absolute inset-x-0 top-0 z-20">
       <div className="w-full max-w-7xl mx-auto px-8 md:px-12 h-16 flex items-center justify-between">
         <Logo />
         <div className="flex items-center gap-8">
           <NavLinks />
-          <SignIn />
+          <SignIn
+            className="h-9 min-w-0 !bg-zinc-900/55 !border-zinc-700/80 !text-zinc-200 hover:!bg-zinc-800/80 hover:!text-zinc-50 px-3.5 text-xs backdrop-blur-sm"
+            showIcon={false}
+          >
+            Sign In
+          </SignIn>
         </div>
       </div>
     </nav>
@@ -82,45 +81,35 @@ function NavBar() {
 
 export default async function HomePage() {
   return (
-    <main className="min-h-screen bg-[#000000] text-white">
+    <main className="relative min-h-screen overflow-hidden bg-black text-zinc-50">
+      <div className="landing-grid-bg" aria-hidden />
+      <div className="landing-ambient" aria-hidden />
       <NavBar />
-      <section className="relative overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
-          <div className="hero-gradient-field" />
-          <div className="hero-gradient-field hero-gradient-field-alt" />
-        </div>
 
-        <div className="relative max-w-7xl mx-auto px-8 md:px-12 pt-18 pb-20">
-          <div className="max-w-3xl">
-            <p
-              className="inline-flex items-center rounded-full border border-brand/40 bg-brand/10 px-4 py-1.5 text-sm text-brand"
-              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-            >
+      <section className="relative">
+        <div className="relative max-w-7xl mx-auto px-8 md:px-12 pt-28 pb-18">
+          <div className="max-w-4xl">
+            <p className="inline-flex items-center rounded-md border border-zinc-800 bg-zinc-900/50 px-2 py-0.5 text-[11px] font-mono tracking-widest uppercase text-zinc-500">
               Real-time collaborative coding workspace
             </p>
             <h1
-              className="mt-6 text-5xl md:text-6xl font-black leading-tight tracking-tight"
+              className="mt-7 text-6xl md:text-7xl font-extrabold leading-[0.97] tracking-[-0.04em] text-zinc-50"
               style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               Review, edit, and merge code together in one place.
             </h1>
             <p
-              className="mt-6 text-lg md:text-xl text-zinc-300 max-w-2xl"
+              className="mt-6 text-lg text-zinc-400 max-w-2xl"
               style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
             >
               CodeOP lets your team open a file, collaborate live, and sync back
               to GitHub when the session ends. No copy-paste, no drift.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-4">
+            <div className="mt-8 flex flex-wrap items-center gap-3">
               <SignIn />
               <Link
                 href="/docs"
-                className="inline-flex h-[37px] min-w-[120px] items-center justify-center rounded-lg border border-zinc-600 bg-zinc-900 px-[14px] text-zinc-100 hover:border-brand hover:text-brand transition-colors"
-                style={{
-                  fontFamily: "var(--font-geist-sans), sans-serif",
-                  fontSize: "15px",
-                  fontWeight: 700,
-                }}
+                className="inline-flex h-10 min-w-[132px] items-center justify-center rounded-md border border-zinc-800 bg-transparent px-4 text-sm font-medium text-zinc-300 transition-colors hover:bg-zinc-900/50 hover:text-zinc-100"
               >
                 View Docs
               </Link>
@@ -144,18 +133,12 @@ export default async function HomePage() {
             ].map((item) => (
               <div
                 key={item.title}
-                className="rounded-xl border border-zinc-800 bg-zinc-950/80 p-5"
+                className="landing-card rounded-xl border border-white/5 bg-zinc-950/40 p-5"
               >
-                <h3
-                  className="text-lg font-semibold text-white"
-                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-                >
+                <h3 className="text-lg font-semibold tracking-tight text-zinc-100">
                   {item.title}
                 </h3>
-                <p
-                  className="mt-2 text-sm text-zinc-300 leading-relaxed"
-                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-                >
+                <p className="mt-2 text-sm leading-relaxed text-zinc-400">
                   {item.desc}
                 </p>
               </div>
@@ -164,12 +147,9 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="border-t border-zinc-800">
+      <section className="border-t border-zinc-900/70">
         <div className="max-w-7xl mx-auto px-8 md:px-12 py-16">
-          <h2
-            className="text-3xl md:text-4xl font-bold"
-            style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-          >
+          <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-zinc-50">
             Simple workflow, fast team output
           </h2>
           <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -180,36 +160,25 @@ export default async function HomePage() {
             ].map((step, idx) => (
               <div
                 key={step}
-                className="rounded-xl border border-zinc-800 bg-zinc-950 p-5"
+                className="landing-card rounded-xl border border-zinc-900 bg-zinc-950/40 p-5"
               >
-                <div className="text-brand text-sm font-semibold">
+                <div className="text-[11px] font-mono uppercase tracking-widest text-zinc-500">
                   Step {idx + 1}
                 </div>
-                <p
-                  className="mt-2 text-zinc-200"
-                  style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-                >
-                  {step}
-                </p>
+                <p className="mt-2 text-zinc-300">{step}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <section className="border-t border-zinc-800">
+      <section className="border-t border-zinc-900/70">
         <div className="max-w-7xl mx-auto px-8 md:px-12 py-16">
-          <div className="rounded-2xl border border-brand/30 bg-gradient-to-r from-zinc-950 via-zinc-900 to-zinc-950 p-8 md:p-10">
-            <h3
-              className="text-2xl md:text-3xl font-bold"
-              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-            >
+          <div className="rounded-xl border border-white/5 bg-zinc-950/50 p-8 md:p-10">
+            <h3 className="text-2xl md:text-3xl font-bold tracking-tight text-zinc-50">
               Start collaborating in minutes.
             </h3>
-            <p
-              className="mt-3 text-zinc-300 max-w-2xl"
-              style={{ fontFamily: "var(--font-geist-sans), sans-serif" }}
-            >
+            <p className="mt-3 max-w-2xl text-zinc-400">
               Connect your GitHub account, enter your workspace, and run your
               first real-time review session.
             </p>

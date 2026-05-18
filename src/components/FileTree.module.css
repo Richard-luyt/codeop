@@ -1,40 +1,42 @@
 /* GitHub / Primer-inspired dark file tree */
 
 .panel {
-  --gh-canvas: #161b22;
-  --gh-border: #30363d;
-  --gh-fg: #e6edf3;
-  --gh-muted: #8d96a0;
-  --gh-hover: #21262d;
-  --gh-accent: #388bfd;
-  --gh-row-selected: rgba(56, 139, 253, 0.12);
-  --gh-folder: #54aeff;
+  --gh-canvas: #09090b;
+  --gh-border: rgba(255, 255, 255, 0.05);
+  --gh-fg: #e4e4e7;
+  --gh-muted: #71717a;
+  --gh-hover: #18181b;
+  --gh-accent: #a1a1aa;
+  --gh-row-selected: rgba(255, 255, 255, 0.04);
+  --gh-folder: #71717a;
 
   background: var(--gh-canvas);
   height: 100%;
   display: flex;
   flex-direction: column;
   min-height: 0;
-  border-right: 1px solid var(--gh-border);
+  border-right: none;
 }
 
 .header {
-  padding: 10px 16px 8px;
+  padding: 10px 12px 8px;
   border-bottom: 1px solid var(--gh-border);
   flex-shrink: 0;
 }
 
 .headerTitle {
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--gh-fg);
-  letter-spacing: normal;
+  color: #a1a1aa;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 .scrollArea {
   flex: 1;
   overflow: auto;
-  padding: 8px 8px 12px;
+  padding: 6px 8px 10px;
   scrollbar-width: thin;
   scrollbar-color: var(--gh-border) transparent;
 }
@@ -62,6 +64,7 @@
   padding: 5px 8px 5px 0;
   margin: 0 2px;
   min-height: 32px;
+  position: relative;
   border-radius: 6px;
   background: transparent;
   color: var(--gh-fg);
@@ -78,7 +81,7 @@
 .rowSelected {
   background: var(--gh-row-selected);
   color: var(--gh-fg);
-  box-shadow: inset 2px 0 0 0 var(--gh-accent);
+  box-shadow: inset 1px 0 0 0 var(--gh-accent);
 }
 
 .rowSelected:hover {
@@ -92,7 +95,7 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: var(--gh-muted);
+  color: #52525b;
 }
 
 .chevronSvg {
@@ -103,12 +106,16 @@
   transform: rotate(90deg);
 }
 
+.chevronOpen {
+  color: #a1a1aa;
+}
+
 .folderIcon {
   color: var(--gh-folder);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  opacity: 0.92;
+  opacity: 0.95;
 }
 
 .folderIconSvg {
@@ -126,7 +133,21 @@
   justify-content: center;
   width: 16px;
   height: 16px;
-  color: var(--gh-muted);
+  color: currentColor;
+}
+
+.guides {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.guideLine {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: rgba(63, 63, 70, 0.58);
 }
 
 .fileIcon {
@@ -135,23 +156,30 @@
 }
 
 .iconJs {
-  color: #f0db4f;
+  color: var(--gh-muted);
 }
 
 .iconTs {
-  color: #79b8ff;
+  color: var(--gh-muted);
 }
 
 .label {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: inherit;
+  color: currentColor;
   font-weight: 400;
 }
 
-.langDot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
+.tonePrimary {
+  color: #d4d4d8;
+}
+
+.toneNeutral {
+  color: #a1a1aa;
+}
+
+.toneMuted {
+  color: #52525b;
+  opacity: 0.58;
 }

@@ -1,8 +1,9 @@
 "use client";
 
-import DashboardSidebar, { SIDEBAR_WIDTH } from "./DashboardSidebar";
+import DashboardSidebar from "./DashboardSidebar";
 import DashboardHeader from "./DashboardHeader";
 import DashboardMain from "./DashboardMain";
+import styles from "./DashboardChrome.module.css";
 
 export default function DashboardLayout({
   user,
@@ -14,25 +15,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      style={{
-        display: "flex",
-        minHeight: "100vh",
-        background: "#0d0d0d",
-        color: "#e5e5e5",
-      }}
-    >
+    <div className={styles.shell}>
       <DashboardSidebar user={user} recentRepos={recentRepos} />
-      <div
-        style={{
-          marginLeft: SIDEBAR_WIDTH,
-          flex: 1,
-          display: "flex",
-          flexDirection: "column",
-          minWidth: 0,
-          minHeight: "100vh",
-        }}
-      >
+      <div className={styles.contentCol}>
         <DashboardHeader />
         <DashboardMain>{children}</DashboardMain>
       </div>

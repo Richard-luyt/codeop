@@ -5,6 +5,7 @@ import { Editor, Monaco } from "@monaco-editor/react";
 import styles from "./RepoList.module.css";
 import { type FileNode } from "../lib/utiles";
 import { editor } from "monaco-editor";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useEffect, useRef } from "react";
@@ -296,25 +297,42 @@ export default function RepoCodeView({
   const renderButton = function () {
     if (!currentFilePath) return null;
     if (isLoadingRoom || roomInfo === undefined) {
-      return <button disabled>Loading room...</button>;
+      return (
+        <button type="button" className={`${styles.roomBtn} ${styles.roomBtnDisabled}`} disabled>
+          <span className={styles.toolbarBtnLabel}>Loading Room</span>
+        </button>
+      );
     }
     if (roomInfo === null) {
       return (
-        <button type="button" onClick={onClickCreate}>
-          Create Room
+        <button
+          type="button"
+          onClick={onClickCreate}
+          className={`${styles.roomBtn} ${styles.roomBtnCreate}`}
+        >
+          <Plus size={16} strokeWidth={1.5} className={styles.toolbarBtnIcon} />
+          <span className={styles.toolbarBtnLabel}>Share Room</span>
         </button>
       );
     }
     if (isJoined == true) {
       return (
-        <button type="button" onClick={disconnectCollab}>
-          Leave Room
+        <button
+          type="button"
+          onClick={disconnectCollab}
+          className={`${styles.roomBtn} ${styles.roomBtnGhost}`}
+        >
+          <span className={styles.toolbarBtnLabel}>Leave Room</span>
         </button>
       );
     }
     return (
-      <button type="button" onClick={onClickJoin}>
-        Join Room
+      <button
+        type="button"
+        onClick={onClickJoin}
+        className={`${styles.roomBtn} ${styles.roomBtnGhost}`}
+      >
+        <span className={styles.toolbarBtnLabel}>Join Room</span>
       </button>
     );
   };
@@ -460,6 +478,13 @@ export default function RepoCodeView({
     }
   }, [jumpCommand, currentFilePath]);
 
+  const activeFileName = currentFilePath
+    ? currentFilePath.split("/").pop() ?? "untitled"
+    : "No file selected";
+  const activeFileExt = activeFileName.includes(".")
+    ? (activeFileName.split(".").pop() ?? "txt").slice(0, 4).toUpperCase()
+    : "TXT";
+
   return (
     <>
       {isModalOpen && (
@@ -536,58 +561,94 @@ export default function RepoCodeView({
           </div>
         </div>
       )}
-      <div className={styles.codeViewRow}>
-        <div style={{ marginBottom: 8 }}>{renderButton()}</div>
-        <span onClick={onBack} className={styles.backLink}>
-          ← Back
-        </span>
-        <div className={styles.fileTreeWrap}>
-          <FileTree
-            nodes={nodes}
-            onFileClick={onFileClick}
-            activePath={currentFilePath}
-          />
+      <div className={styles.codeViewPage}>
+        <div className={styles.codeTopBar}>
+          <button type="button" onClick={onBack} className={styles.breadcrumbBtn}>
+            <span className={styles.breadcrumbBrand}>codeop</span>
+            <span className={styles.breadcrumbSep}>&gt;</span>
+            <span className={styles.breadcrumbCurrent}>New Room</span>
+          </button>
+          <div className={styles.topBarRight}>
+            <div className={styles.topBarRoomAction}>{renderButton()}</div>
+            <div className={styles.topBarUsers} aria-label="Online users">
+              <span className={styles.topUserAvatar}>Y</span>
+              <span className={styles.topUserAvatar}>L</span>
+              <span className={styles.topUserAvatar}>G</span>
+            </div>
+          </div>
         </div>
-        <div className={styles.editorWrap}>
-          <Editor
-            height="100%"
-            language={codelanguage}
-            theme="vs-dark"
-            onMount={handleLocalEditorMount}
-            defaultValue={currentCode}
-          />
-          {activeWidgets.map((widget) =>
-            createPortal(
-              <div className="bg-zinc-800 border border-zinc-700 p-4 rounded-lg shadow-2xl z-50 text-white min-w-[300px]">
-                <div className="font-bold text-sm text-blue-400 mb-2">
-                  Line {widget.line} has a new comment!
-                </div>
-                <p className="text-sm">
-                  {widget.payload?.content || "No content provided."}
-                </p>
-
-                <button
-                  className="mt-3 text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded"
-                  onClick={() => {
-                    if (editorRef.current) {
-                      editorRef.current.removeContentWidget({
-                        getId: () => widget.id,
-                      } as any);
-                    }
-
-                    setActiveWidgets((prev) =>
-                      prev.filter((w) => w.id !== widget.id),
-                    );
-
-                    clearJumpCommand();
-                  }}
-                >
-                  Close
+        <div className={styles.codeViewRow}>
+          <div className={styles.fileTreeWrap}>
+            <FileTree
+              nodes={nodes}
+              onFileClick={onFileClick}
+              activePath={currentFilePath}
+            />
+          </div>
+          <div className={styles.editorWrap}>
+            <div className={styles.editorTabs}>
+              <div className={styles.editorTabActive}>
+                <span className={styles.editorTabIcon}>{activeFileExt}</span>
+                <span className={styles.editorTabLabel}>{activeFileName}</span>
+                <button type="button" className={styles.editorTabClose} aria-label="Close tab">
+                  ×
                 </button>
-              </div>,
-              widget.node,
-            ),
-          )}
+              </div>
+            </div>
+            <div className={styles.editorCanvas}>
+              <Editor
+                height="100%"
+                width="100%"
+                language={codelanguage}
+                theme="vs-dark"
+                onMount={handleLocalEditorMount}
+                defaultValue={currentCode}
+                options={{
+                  automaticLayout: true,
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  lineHeight: 22,
+                  smoothScrolling: true,
+                  scrollBeyondLastLine: false,
+                  glyphMargin: false,
+                  folding: true,
+                  renderValidationDecorations: "off",
+                }}
+              />
+            </div>
+            {activeWidgets.map((widget) =>
+              createPortal(
+                <div className="bg-zinc-800 border border-zinc-700 p-4 rounded-lg shadow-2xl z-50 text-white min-w-[300px]">
+                  <div className="font-bold text-sm text-blue-400 mb-2">
+                    Line {widget.line} has a new comment!
+                  </div>
+                  <p className="text-sm">
+                    {widget.payload?.content || "No content provided."}
+                  </p>
+
+                  <button
+                    className="mt-3 text-xs bg-red-500/20 text-red-400 px-2 py-1 rounded"
+                    onClick={() => {
+                      if (editorRef.current) {
+                        editorRef.current.removeContentWidget({
+                          getId: () => widget.id,
+                        } as any);
+                      }
+
+                      setActiveWidgets((prev) =>
+                        prev.filter((w) => w.id !== widget.id),
+                      );
+
+                      clearJumpCommand();
+                    }}
+                  >
+                    Close
+                  </button>
+                </div>,
+                widget.node,
+              ),
+            )}
+          </div>
         </div>
       </div>
     </>
