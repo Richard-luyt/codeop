@@ -1,17 +1,14 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+<img width="1430" height="880" alt="截屏2026-05-14 下午7 55 36" src="https://github.com/user-attachments/assets/d545c526-db71-4f54-a905-b63accd8876f" />
+
+
 ## Getting Started
 
 First, run the development server:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev:all
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
